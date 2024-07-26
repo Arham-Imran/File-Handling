@@ -52,7 +52,11 @@ streamsize file_system::check_file_size()
 
 int file_system::write_file(string new_data)
 {
-    if(new_data.size() + file_size <= max_size)
+    if(file_size >= max_size)
+    {
+        return 0;
+    }
+    else if(new_data.size() + file_size <= max_size)
     {
         file.close();
         file.open(file_name, ios::out | ios::in | ios::app);
@@ -63,10 +67,6 @@ int file_system::write_file(string new_data)
         file.open(file_name, ios::out | ios::in);
         
         return new_data.size();
-    }
-    else if(file_size >= max_size)
-    {
-        return 0;
     }
     else if(file_size < max_size && file_size + new_data.size() > max_size)
     {
@@ -83,12 +83,18 @@ int file_system::write_file(string new_data)
         return buffer_size;
     }
     else
+    {
         return -1;
+    }
 }
 
 int file_system::write_file(int pos, string new_data)
 {
-    if(new_data.size() + file_size <= max_size && pos < file_size)
+    if(file_size >= max_size)
+    {
+        return 0;
+    }
+    else if(new_data.size() + file_size <= max_size && pos < file_size)
     {
         stringstream file_buf;
         file.seekg(0, ios::beg);
@@ -105,10 +111,6 @@ int file_system::write_file(int pos, string new_data)
         file_size += new_data.size();
         
         return new_data.size();
-    }
-    else if(file_size >= max_size && pos < file_size)
-    {
-        return 0;
     }
     else if(file_size < max_size && file_size + new_data.size() > max_size && pos < file_size)
     {
@@ -131,7 +133,9 @@ int file_system::write_file(int pos, string new_data)
         return buffer_size;
     }
     else
+    {
         return -1;
+    }
 }
 
 void create_files(vector<file_system*>& files, int num_of_files)
@@ -146,40 +150,75 @@ void create_files(vector<file_system*>& files, int num_of_files)
     }
 }
 
-void check_prev_files(vector<file_system*>& files, string& line, )
+void parse_input(int& pos, string& line)
 {
-    int chars_written = 0;
-    for(int i=files.size()-1; i>=0; i--)
+    cin >> pos;
+    getline(cin, line);
+    line.erase(line.begin());
+}
+
+void file_control(vector<file_system*>& files, string& line, int& pos)
+{
+    int characters_written = 0; 
+    for(int i=0; i<files.size(); i++)   // checks and writes into existing files
     {
-        if(files[i]->file_size < file_system::max_size)
+        characters_written = files[i]->write_file(pos, line);
+        if(characters_written == 0)
         {
-            chars_written = files[i]->write_file(line);
-            if(chars_written == line.size())
-            {
-                return;
-            }
-            else if(chars_written < line.size() && chars_written > 0)
-            {
-                line.erase(line.begin(), line.begin() + chars_written);
-                chars_written = 0;
-                continue;
-            }
-            else
-            {
-                continue;
-            }
+            pos -= file_system::max_size;
+            pos = pos<0 ? 0 : pos;
+            continue;
         }
-        else
+        else if(characters_written > 0 && characters_written < line.size())
+        {
+            line.erase(line.begin(), line.begin() + characters_written);
+            pos = 0;
+            characters_written = 0;
+        }
+        else if(characters_written == line.size())
         {
             return;
         }
     }
+
+    int files_to_create = (pos / file_system::max_size) + 1;
+    create_files(files, files_to_create);        
+    files.back()->write_file(line);
 }
+
+// void check_prev_files(vector<file_system*>& files, string& line, )
+// {
+//     int chars_written = 0;
+//     for(int i=files.size()-1; i>=0; i--)
+//     {
+//         if(files[i]->file_size < file_system::max_size)
+//         {
+//             chars_written = files[i]->write_file(line);
+//             if(chars_written == line.size())
+//             {
+//                 return;
+//             }
+//             else if(chars_written < line.size() && chars_written > 0)
+//             {
+//                 line.erase(line.begin(), line.begin() + chars_written);
+//                 chars_written = 0;
+//                 continue;
+//             }
+//             else
+//             {
+//                 continue;
+//             }
+//         }
+//         else
+//         {
+//             return;
+//         }
+//     }
+// }
 
 int main()
 {
     int pos = -1;
-    bool broke_loop = false;
     int chars_written = -2;
     string line;
     vector<file_system*> files;
@@ -188,60 +227,7 @@ int main()
     
     while(true)
     {
-        cin >> pos;
-        getline(cin, line);
-        line.erase(line.begin());
-
-        for(int i=0; i<files.size(); i++)
-        {
-            if(files[i]->file_size > pos)
-            {
-                chars_written = files[i]->write_file(pos, line);
-                if(chars_written < line.size() && chars_written > 0)
-                {
-                    line.erase(line.begin(), line.begin() + chars_written);
-                    pos = 0;
-                    chars_written = 0;
-                }
-                else if(chars_written == line.size())
-                {
-                    broke_loop = true;
-                    chars_written = 0;
-                    break;
-                }
-                else if(chars_written == 0)
-                {
-                    pos = 0;
-                }
-            }
-            else if(files[i]->file_size == 0)
-            {
-                files[i]->write_file(line);
-                broke_loop = true;
-                break;
-            }
-            else
-            {
-                pos -= files[i]->file_size;
-            }
-        }
-        
-        if(!broke_loop && pos >= 0)
-        {
-            create_files(files, 1);
-            files.back()->write_file(line);
-            broke_loop = false;
-        }
+        parse_input(pos, line);
+        file_control(files, line, pos);
     }
 }
-
-/*
-test cases:
-
-1. All files are empty and write pos > 0
-2. All files are full 
-3. Only final file is full and write pos > than all file sizes combined
-4. One file has 0 < space < line.size() and rest files are full, pos > size of all files
-5. Each file has 0 < space < line.size() and pos very small
-
-*/
