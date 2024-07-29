@@ -101,6 +101,12 @@ int file_system::write_file(int pos, string new_data)
     else if(new_data.size() + pos <= max_size)
     {
         pos = pos>file_size ? file_size : pos;
+
+        if(pos == 0)
+        {
+            return write_file(new_data);
+        }
+
         stringstream file_buf;
         file.seekg(0, ios::beg);
         file_buf << file.rdbuf();
