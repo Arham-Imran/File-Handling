@@ -94,8 +94,13 @@ int file_system::write_file(int pos, string new_data)
     {
         return 0;
     }
-    else if(new_data.size() + file_size <= max_size && pos < file_size)
+    else if(pos == 0 && file_size == 0)
     {
+        return write_file(new_data);
+    }
+    else if(new_data.size() + pos <= max_size)
+    {
+        pos = pos>file_size ? file_size : pos;
         stringstream file_buf;
         file.seekg(0, ios::beg);
         file_buf << file.rdbuf();
@@ -112,10 +117,17 @@ int file_system::write_file(int pos, string new_data)
         
         return new_data.size();
     }
-    else if(file_size < max_size && file_size + new_data.size() > max_size && pos < file_size)
+    else if(pos < max_size && pos + new_data.size() > max_size)
     {
-        int buffer_size = max_size - file_size;
+        int buffer_size = max_size - pos;
+        pos = pos>file_size ? file_size : pos;
         new_data.resize(buffer_size);
+
+        if(pos == 0)
+        {
+            return write_file(new_data);
+        }
+
         stringstream file_buf;
         file.seekg(0, ios::beg);
         file_buf << file.rdbuf();
@@ -163,7 +175,7 @@ void file_control(vector<file_system*>& files, string& line, int& pos)
     for(int i=0; i<files.size(); i++)   // checks and writes into existing files
     {
         characters_written = files[i]->write_file(pos, line);
-        if(characters_written == 0)
+        if(characters_written <= 0)
         {
             pos -= file_system::max_size;
             pos = pos<0 ? 0 : pos;
