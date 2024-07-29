@@ -177,6 +177,16 @@ void parse_input(int& pos, string& line)
 
 void file_control(vector<file_system*>& files, string& line, int& pos)
 {
+
+    int files_to_create = (pos / file_system::max_size) + 1;
+    if(files_to_create > files.size() && pos%500 + line.size() > 500)
+    {
+        create_files(files, files_to_create - files.size() + 1);        
+    }
+    else if (files_to_create > files.size())
+    {
+        create_files(files, files_to_create - files.size());
+    }
     int characters_written = 0; 
     for(int i=0; i<files.size(); i++)   // checks and writes into existing files
     {
@@ -199,9 +209,7 @@ void file_control(vector<file_system*>& files, string& line, int& pos)
         }
     }
 
-    int files_to_create = (pos / file_system::max_size) + 1;
-    create_files(files, files_to_create);        
-    files.back()->write_file(line);
+    // files.back()->write_file(pos%500, line);
 }
 
 // void check_prev_files(vector<file_system*>& files, string& line, )
