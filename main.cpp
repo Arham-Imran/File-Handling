@@ -11,9 +11,9 @@ class file
     private:
     char file_name[50];
     fstream file_obj;
+    streamsize file_size;
 
     public:
-    streamsize file_size;
     static const int max_size = 500;
     file(int);
     ~file();
@@ -156,45 +156,58 @@ int file::write_file(int pos, string new_data)
     }
 }
 
-void create_files(vector<file*>& files, int num_of_files)
+class file_manager
 {
-    static int num = 1;
-    file *new_file = NULL;
-    for(int i=0; i<num_of_files; i++)
+    private:
+    vector<file*> files_record;
+    int num_of_files_open;
+    void create_files(int);
+
+    public:
+    file_manager();
+    ~file_manager();
+    void file_control(string&, int&);
+};
+
+file_manager::file_manager() : num_of_files_open(0) {}
+
+file_manager::~file_manager()
+{
+    for(int i = 0; i < num_of_files_open; i++)
+        delete files_record[i];
+}
+
+void file_manager::create_files(int num_of_files)
+{
+    file* new_file = NULL;
+    for(int i = 0; i < num_of_files; i++)
     {
-        new_file = new file(num);
-        files.push_back(new_file);
-        num++;
+        new_file = new file(num_of_files_open);
+        files_record.push_back(new_file);
+        num_of_files_open++;
     }
 }
 
-void parse_input(int& pos, string& line)
+void file_manager::file_control(string& line, int& pos)
 {
-    cin >> pos;
-    getline(cin, line);
-    line.erase(line.begin());
-}
-
-void file_control(vector<file*>& files, string& line, int& pos)
-{
-
     int files_to_create = (pos / file::max_size) + 1;
-    if(files_to_create > files.size() && pos%500 + line.size() > 500)
+    if(files_to_create > num_of_files_open && (pos % 500) + line.size() > 500)       // creates an extra file if string is split between 2 new files
     {
-        create_files(files, files_to_create - files.size() + 1);        
+        create_files(files_to_create - num_of_files_open + 1);        
     }
-    else if (files_to_create > files.size())
+    else if (files_to_create > num_of_files_open)
     {
-        create_files(files, files_to_create - files.size());
+        create_files(files_to_create - num_of_files_open);
     }
+
     int characters_written = 0; 
-    for(int i=0; i<files.size(); i++)   // checks and writes into existing files
+    for(int i = 0; i < num_of_files_open; i++)   // checks and writes into existing files
     {
-        characters_written = files[i]->write_file(pos, line);
+        characters_written = files_record[i]->write_file(pos, line);
         if(characters_written <= 0)
         {
             pos -= file::max_size;
-            pos = pos<0 ? 0 : pos;
+            pos = (pos < 0) ? 0 : pos;
             continue;
         }
         else if(characters_written > 0 && characters_written < line.size())
@@ -210,48 +223,22 @@ void file_control(vector<file*>& files, string& line, int& pos)
     }
 }
 
-// void check_prev_files(vector<file*>& files, string& line, )
-// {
-//     int chars_written = 0;
-//     for(int i=files.size()-1; i>=0; i--)
-//     {
-//         if(files[i]->file_size < file::max_size)
-//         {
-//             chars_written = files[i]->write_file(line);
-//             if(chars_written == line.size())
-//             {
-//                 return;
-//             }
-//             else if(chars_written < line.size() && chars_written > 0)
-//             {
-//                 line.erase(line.begin(), line.begin() + chars_written);
-//                 chars_written = 0;
-//                 continue;
-//             }
-//             else
-//             {
-//                 continue;
-//             }
-//         }
-//         else
-//         {
-//             return;
-//         }
-//     }
-// }
+void parse_input(int& pos, string& line)
+{
+    cin >> pos;
+    getline(cin, line);
+    line.erase(line.begin());
+}
 
 int main()
 {
     int pos = -1;
-    int chars_written = -2;
-    string line;
-    vector<file*> files;
-
-    create_files(files, 4);
+    string line = "";
+    file_manager new_filesystem;
     
     while(true)
     {
         parse_input(pos, line);
-        file_control(files, line, pos);
+        new_filesystem.file_control(line, pos);
     }
 }
