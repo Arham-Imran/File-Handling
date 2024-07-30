@@ -4,3 +4,4 @@ test*.txt
 .vscode/
 .vs
 random_text.txt
+out/
