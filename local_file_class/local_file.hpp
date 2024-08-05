@@ -8,16 +8,24 @@ using namespace std;
 
 class file
 {
+    public:
+    enum class Mode
+    {
+        APPEND, BINARY, READ_ONLY, WRITE_ONLY, READ_WRITE, TRUNCATE, APPEND_AT_END
+    };
+
     private:
     string file_name = "../File_Dump/";
     fstream file_obj;
     streamsize file_size = 0;
+    Mode file_mode;
 
     public:
     static const int max_size = 500;
-    file(int);
-    file(string);
+    file(int, Mode);
+    file(string, Mode);
     ~file();
+    void open_file();
     void fill_file_random();
     bool file_is_open();
     void close_file();

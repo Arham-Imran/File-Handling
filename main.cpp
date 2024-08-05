@@ -18,7 +18,7 @@ int main()
 {
     int pos = -1;
     string line = "";
-    file_manager new_filesystem;
+    file_manager new_filesystem(file::Mode::READ_WRITE);
     
     while(true)
     {

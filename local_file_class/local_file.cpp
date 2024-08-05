@@ -1,37 +1,26 @@
-#include <sstream>
 #include <limits>
 #include "local_file.hpp"
 
-file::file(int num)
+file::file(int num, Mode open_mode)
 {
     file_name.append("test" + to_string(num) + ".txt");
-    file_obj.open(file_name, ios::in | ios::out);
-
-    if(!file_obj.is_open())
-    {
-        file_obj.open(file_name, ios::out);
-        file_obj.close();
-        file_obj.open(file_name, ios::out | ios::in);
-    }
     
+    file_mode = open_mode;
     file_size = check_file_size();
+    open_file();
+
     fill_file_random();
     file_obj.seekp(0, ios::beg);
 }
 
-file::file(string name)
+file::file(string name, Mode open_mode)
 {
     file_name.append(name);
-    file_obj.open(file_name, ios::in | ios::out);
-
-    if(!file_obj.is_open())
-    {
-        file_obj.open(file_name, ios::out);
-        file_obj.close();
-        file_obj.open(file_name, ios::out | ios::in);
-    }
+    file_mode = open_mode;
 
     file_size = check_file_size();
+    open_file();
+
     fill_file_random();
     file_obj.seekp(0, ios::beg);
 }
@@ -39,6 +28,56 @@ file::file(string name)
 file::~file()
 {
     close_file();
+}
+
+void file::open_file()
+{
+    if (!file_obj.is_open())
+    {
+        switch (file_mode)
+        {
+        case Mode::APPEND:
+            file_obj.open(file_name, ios::app);
+            break;
+
+        case Mode::BINARY:
+            file_obj.open(file_name, ios::binary | ios::binary);
+            if (!file_obj.is_open())
+                file_obj.open(file_name, ios::binary | ios::out);
+            break;
+
+        case Mode::READ_ONLY:
+            file_obj.open(file_name, ios::in);
+            break;
+
+        case Mode::WRITE_ONLY:
+            file_obj.open(file_name, ios::out);
+            break;
+
+        case Mode::READ_WRITE:
+            file_obj.open(file_name, ios::in | ios::out);
+            if (!file_obj.is_open())
+            {
+                file_obj.open(file_name, ios::out);
+                file_obj.close();
+                file_obj.open(file_name, ios::in | ios::out);
+            }
+            break;
+
+        case Mode::TRUNCATE:
+            file_obj.open(file_name, ios::out | ios::trunc);
+            break;
+
+        case Mode::APPEND_AT_END:
+            file_obj.open(file_name, ios::ate | ios::in | ios::out);
+            if (!file_obj.is_open())
+                file_obj.open(file_name, ios::ate | ios::out);
+            break;
+
+        default:
+            break;
+        }
+    }
 }
 
 void file::fill_file_random()
@@ -49,7 +88,7 @@ void file::fill_file_random()
         file_obj.seekp(0, ios::end);
         file_obj << random;
         file_obj.flush();
-        int bad = file_obj.bad();
+
         random++;
         file_size++;
 
@@ -79,11 +118,20 @@ void file::close_file()
 
 streamsize file::check_file_size()
 {
+    if(file_obj.is_open())
+        file_obj.close();   
+    
+    file_obj.open(file_name, ios::out | ios::in | ios::binary);
+    if (!file_obj.is_open())
+        return 0;
+
     file_obj.ignore(std::numeric_limits<std::streamsize>::max());
     streamsize length = file_obj.gcount();
     file_obj.clear();
-    file_obj.seekp(0, ios::beg);
     file_obj.seekg(0, ios::beg);
+
+    file_obj.close();
+    open_file();
     return length;
 }
 
