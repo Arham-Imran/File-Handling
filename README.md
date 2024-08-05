@@ -1,0 +1,4 @@
+
+# File Handling
+
+This project was created to create files and write the user’s given string to the user specified character location. No file should ever go beyond the max size specified. Each file created is full with the maximum number of bytes specified in the file class with random characters. If the character location lies in the range previously stated then the user’s string should be written in that file at the specified character number and overwrites the previous characters at the position. If the character location is greater than the max file size, then subtract the max size from the character location, and check if it's the next file to be written into or to repeat the subtraction process. Creating the required number of files is the responsibility of the program.
