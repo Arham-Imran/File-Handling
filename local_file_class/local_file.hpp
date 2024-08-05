@@ -21,8 +21,9 @@ class file
     bool file_is_open();
     void close_file();
     streamsize check_file_size();
-    int write_file(string);
-    int write_file(int, string);
+    // int write_file(string);
+    // int write_file(int, string);
+    int seek(int, string);
 };
 
 #endif //_LOCAL_FILE_HPP_

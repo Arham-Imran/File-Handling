@@ -11,12 +11,13 @@ class file_manager
     private:
     vector<file*> files_record;
     int num_of_files_open;
-    void create_files(int);
 
     public:
+    void create_files(int);
     file_manager();
     ~file_manager();
-    void file_control(string&, int&);
+    void seek(string&, int&);
+    void close_all_files();
 };
 
 #endif //_FILE_MANAGER_HPP_
