@@ -9,7 +9,7 @@ using namespace std;
 class file
 {
     private:
-    string file_name = "File_Dump/";
+    string file_name = "../File_Dump/";
     fstream file_obj;
     streamsize file_size = 0;
 
@@ -18,11 +18,10 @@ class file
     file(int);
     file(string);
     ~file();
+    void fill_file_random();
     bool file_is_open();
     void close_file();
     streamsize check_file_size();
-    // int write_file(string);
-    // int write_file(int, string);
     int seek(int, string);
 };
 

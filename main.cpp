@@ -23,6 +23,6 @@ int main()
     while(true)
     {
         parse_input(pos, line);
-        new_filesystem.file_control(line, pos);
+        new_filesystem.seek(line, pos);
     }
 }
