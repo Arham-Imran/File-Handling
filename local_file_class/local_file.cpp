@@ -4,7 +4,20 @@
 
 file::file(int num)
 {
-    sprintf(file_name, "../test%d.txt", num);
+    file_name.append("test" + to_string(num) + ".txt");
+    file_obj.open(file_name, ios::in | ios::out);
+    if(!file_obj.is_open())
+    {
+        file_obj.open(file_name, ios::out);
+        file_obj.close();
+        file_obj.open(file_name, ios::out | ios::in);
+    }
+    file_size = check_file_size();
+}
+
+file::file(string name)
+{
+    file_name.append(name);
     file_obj.open(file_name, ios::in | ios::out);
     if(!file_obj.is_open())
     {
@@ -17,7 +30,20 @@ file::file(int num)
 
 file::~file()
 {
-    file_obj.close();
+    close_file();
+}
+
+bool file::file_is_open()
+{
+    return file_obj.is_open();
+}
+
+void file::close_file()
+{
+    if (file_obj.is_open())
+        file_obj.close();
+    else
+        return;
 }
 
 streamsize file::check_file_size()

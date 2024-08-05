@@ -9,14 +9,17 @@ using namespace std;
 class file
 {
     private:
-    char file_name[50];
+    string file_name = "File_Dump/";
     fstream file_obj;
-    streamsize file_size;
+    streamsize file_size = 0;
 
     public:
     static const int max_size = 500;
     file(int);
+    file(string);
     ~file();
+    bool file_is_open();
+    void close_file();
     streamsize check_file_size();
     int write_file(string);
     int write_file(int, string);

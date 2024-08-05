@@ -5,3 +5,4 @@ test*.txt
 .vs
 random_text.txt
 out/
+File_Dump/
