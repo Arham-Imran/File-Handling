@@ -15,7 +15,7 @@ class file
     };
 
     private:
-    string file_name = "../File_Dump/";
+    string file_name = "../test_files/";
     fstream file_obj;
     streamsize file_size = 0;
     Mode file_mode;
