@@ -19,7 +19,8 @@ namespace small_file
             };
 
             private:
-            string file_name = "../test_files/";
+            string file_prefix = "../test_files/";
+            string file_name;
             fstream file_obj;
             streamsize file_size = 0;
             Mode file_mode;
@@ -27,15 +28,15 @@ namespace small_file
             public:
             static const int max_size = 500;
             file();
-            file(int, Mode);
+            //file(int, Mode);
             file(string, Mode);
             ~file();
-            void open_file();
+            void open_file(string, Mode);
             void fill_file_random();
             bool file_is_open();
             void close_file();
             streamsize check_file_size();
-            int seek(int, string);
+            int write(int, const char*);
         };
     }
 }

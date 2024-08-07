@@ -8,7 +8,7 @@ namespace large_file
         file_manager::file_manager(file::Mode open_mode)
         {
             file_mode = open_mode;
-            create_files(4);
+            // create_files(4);
         }
 
         file_manager::file_manager(int specified_size, file::Mode open_mode)
@@ -29,7 +29,7 @@ namespace large_file
             file* new_file = NULL;
             for(int i = 0; i < num_of_files; i++)
             {
-                new_file = new file(i, file_mode);
+                new_file = new file("test" + to_string(i) + ".txt", file_mode);
                 files_record.push_back(new_file);
                 num_of_files_open++;
             }
@@ -43,7 +43,7 @@ namespace large_file
             
             for (int i = 0; i < num_of_files_open; i++)   //checks and writes into existing files
             {
-                characters_written = files_record[i]->file::seek(pos, line);
+                characters_written = files_record[i]->file::write(pos, line.c_str());
                 if (characters_written <= 0)
                 {
                     pos -= file::max_size;
