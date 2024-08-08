@@ -26,7 +26,7 @@ namespace small_file
             Mode file_mode;
 
             public:
-            static const int max_size = 500;
+            static const int max_size;
             file();
             //file(int, Mode);
             file(string, Mode);
@@ -41,4 +41,6 @@ namespace small_file
     }
 }
 
+#else 
+extern const int max_size;
 #endif //_LOCAL_FILE_HPP_

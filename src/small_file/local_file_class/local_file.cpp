@@ -7,6 +7,8 @@ namespace small_file
     namespace local_file
     {
         using namespace std;    
+
+        const int file::max_size = 500; 
         
         file::file(){}
 
