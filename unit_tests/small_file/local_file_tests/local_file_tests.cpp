@@ -1,171 +1,141 @@
-#include "CppUnitTest.h"
-#include "file_manager.hpp"
+#include <iostream>
+#include <string>
+#include <fstream>
+#include "gtest/gtest.h"
+#include "local_file.hpp"
+using namespace std;
+using namespace small_file::local_file;
 
-using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
-namespace ManagerTests
+
+const char* file_prefix = "../test_files/";
+string _100bytes = "HelloWuEC7wOv238xglW75H8ZoCTPRcoudsY1RqB96XC"
+						"ZnmMKp3BXb2FYCWbI1sWgPRuv3OeYSuUGz7UzXJMxEy"
+						"Z9DlVdOVqnJA6";
+string _500bytes = "dDvxR48Ubch5Z2LgDyrOTsqiEugtLd5oKh6dj0evcv5eTvVqj"
+					"i3JvA2wlt8UCtEUEtxKybEKF5SL2l7vmOgXm3q3jJDha36pM"
+					"fwYSiG1sgJAMDj6qoNv9tn4cQqFKwi9otgBctWGrZXY73Z3Z"
+					"4iAJbz7zy5DWi2mALsR3C70wggSxGLberWDZMAmslCTdYwST"
+					"qLdLs22j95VcYR4OaXR8iU8kBcvFYABH7snKf3xHH2G1tDbS"
+					"GseTv6JlSpzReYh2EuI0rNCPsIja4mf1QEDItFssmdkHb3Og"
+					"97511RpO2UhXbsojBqUc6j2U51mZn6OhpVDINeiy00GrE0d7"
+					"PI7S0Vm5t5a85xa9rOrVmMVdZMbwVRd2VWfNH7dwDb2njZNU"
+					"LZKMuwXEUwxEv0m5cEzkJulAX21F42UzdqTUhIsmgh5UlwEl"
+					"rqpFDrblXVeCIOHjVmyeamrlWnwuRfgEOhYXEMlIzeKUOriE"
+					"5sRNhbDe2VsQPxHrQbQ";
+// int file_maxsize = small_file::local_file::file::max_size;
+
+TEST(LocalFileTests, ExisitingFileOpenTest)
 {
-	namespace FileControlTests
-	{
-		const char* file_prefix = "../TestFiles/IoTest/";
-		const string _600bytes = "dDvxR48Ubch5Z2LgDyrOTsqiEugtLd5oKh6dj0evcv5eTvVqj"
-								"i3JvA2wlt8UCtEUEtxKybEKF5SL2l7vmOgXm3q3jJDha36pM"
-								"fwYSiG1sgJAMDj6qoNv9tn4cQqFKwi9otgBctWGrZXY73Z3Z"
-								"4iAJbz7zy5DWi2mALsR3C70wggSxGLberWDZMAmslCTdYwST"
-								"qLdLs22j95VcYR4OaXR8iU8kBcvFYABH7snKf3xHH2G1tDbS"
-								"GseTv6JlSpzReYh2EuI0rNCPsIja4mf1QEDItFssmdkHb3Og"
-								"97511RpO2UhXbsojBqUc6j2U51mZn6OhpVDINeiy00GrE0d7"
-								"PI7S0Vm5t5a85xa9rOrVmMVdZMbwVRd2VWfNH7dwDb2njZNU"
-								"LZKMuwXEUwxEv0m5cEzkJulAX21F42UzdqTUhIsmgh5UlwEl"
-								"rqpFDrblXVeCIOHjVmyeamrlWnwuRfgEOhYXEMlIzeKUOriE"
-								"HelloWuEC7wOv238xglW75H8ZoCTPRcoudsY1RqB96XC"
-								"ZnmMKp3BXb2FYCWbI1sWgPRuv3OeYSuUGz7UzXJMxEy"
-								"5sRNhbDe2VsQPxHrQbQZ9DlVdOVqnJA6";
-		
-		TEST_CLASS(FileManagerTests)
-		{
-		public:
-			TEST_METHOD(FileCreationTest)
-			{
-				const int create_files = 4;
-				int huge_file_size = 4000;  //size in bytes
-				file_manager file_test(huge_file_size, file::Mode::READ_WRITE);
-				file_test.create_files(create_files);
+	string file_name = "ExisitingFileOpenTest.txt";
 
-				fstream test_file;
-				string file_name;
-				for (int i = 0; i < create_files; i++)
-				{
-					file_name = string(file_prefix);
-					file_name.append("test" + to_string(i) + ".txt");
-					test_file.open(file_name);
+	fstream test_file(string(file_prefix) + file_name, ios::out);
+	test_file.close();
 
-					Assert::IsTrue(test_file.is_open(), L"Files not created by File manager class");
-					test_file.close();
-				}
-				file_test.close_all_files();
+	file check(file_name, file::Mode::READ_ONLY);
+	EXPECT_TRUE(check.file_is_open()) << "Failed to open existing file";
 
-				for (int i = 0; i < (create_files + 1 + (huge_file_size)/file::max_size); i++)
-				{
-					file_name = string(file_prefix);
-					file_name.append("test" + to_string(i) + ".txt");
+	check.close_file();
+	remove((string(file_prefix) + file_name).c_str());
+}
 
-					if (remove(file_name.c_str()) != 0)
-						Logger::WriteMessage("File deletion failed!!");
-				}
-			}
+TEST(LocalFileTests, CreateAndOpenNewFileTest)
+{
+	string file_name = "CreateAndOpenNewFileUsingStringTest.txt";
 
-			TEST_METHOD(WritingToASingleFileTest)
-			{
-				const string write_str = "Hello Test";
-				const int pos = 50;
-				string test_str(write_str);
-				int test_pos = pos;
+	file check(file_name, file::Mode::WRITE_ONLY);
 
-				file_manager file_test(file::Mode::READ_WRITE);
-				file_test.seek(test_str, test_pos);
-				file_test.close_all_files();
+	fstream test_file(string(file_prefix) + file_name, ios::out | ios::in);
+	EXPECT_TRUE(test_file.is_open()) << "Failed to create new file";
 
-				string file_name = string(file_prefix) + "test0.txt";
-				fstream file(file_name, ios::in | ios::out);
-				stringstream file_buf;
-				char test[20] = "";
+	check.close_file();
+	test_file.close();
+	remove((string(file_prefix) + file_name).c_str());
+}
 
-				file_buf << file.rdbuf();
-				file_buf.seekg(pos, ios::beg);
-				file_buf.read(test, strlen(write_str.c_str()));
-				Assert::AreEqual(write_str.c_str(), test, L"String not written correctly at correct postion");
+TEST(LocalFileTests, CheckFileSizeTest)
+{
+	string file_name = "CheckFileSizeTest.txt";
 
-				file.close();
-				for (int i = 0; i < 4; i++)
-				{
-					file_name = string(file_prefix);
-					file_name.append("test" + to_string(i) + ".txt");
+	fstream dump_file(string(file_prefix) + file_name, ios::out);
+	dump_file << _100bytes;
+	dump_file.close(); 
 
-					if (remove(file_name.c_str()) != 0)
-						Logger::WriteMessage("File deletion failed!!");
-				}
-			}
+	file test_file(file_name, file::Mode::READ_WRITE);
+	int length = static_cast<int>(test_file.check_file_size());
+	EXPECT_EQ(file::max_size, length) << "Incorrect file size after writing 100 bytes";
 
-			TEST_METHOD(WritingTo2DifferentFilesTest)
-			{
-				const string write_str = "Hello Test";
-				const int pos = 494;
-				string test_str(write_str);
-				int test_pos = pos;
+	dump_file.open(string(file_prefix) + file_name, ios::out | ios::trunc);
+	dump_file << _500bytes;
+	dump_file.close();
 
-				file_manager file_test(file::Mode::READ_WRITE);
-				file_test.seek(test_str, test_pos);
-				file_test.close_all_files();
+	length = static_cast<int>(test_file.check_file_size());
+	EXPECT_EQ(file::max_size, length) << "Incorrect file size after writing 500 bytes";
 
-				int file_index = (pos + write_str.size()) / file::max_size;
-				fstream file;
-				string file_name;
-				stringstream file_buf;
+	test_file.close_file();
+	remove((string(file_prefix) + file_name).c_str());
+}
 
-				for (int i = 0; i < file_index + 1; i++)
-				{
-					file_name = string(file_prefix);
-					file_name.append("test" + to_string(i) + ".txt");
-					file.open(file_name, ios::out | ios::in | ios::binary);
-					file_buf << file.rdbuf();
-					file.close();	
-				}
+TEST(LocalFileTests, WriteFullStringToFileTest)
+{
+	string file_name = "WriteStringToFileTest.txt";
+	stringstream file_buf;
 
-				char test[20] = "";
-				file_buf.seekg(pos, ios::beg);
-				file_buf.read(test, strlen(write_str.c_str()));
-				Assert::AreEqual(write_str, string(test), L"Strings not written correctly");
+	file test_file(file_name, file::Mode::WRITE_ONLY);
+	test_file.write(0, _100bytes.c_str());
 
-				for (int i = 0; i < 4; i++)
-				{
-					file_name = string(file_prefix);
-					file_name.append("test" + to_string(i) + ".txt");
+	fstream check(string(file_prefix) + file_name, ios::out | ios::in | ios::binary);
+	if (!check.is_open())
+		FAIL() << "File not created!";
+	
+	file_buf << check.rdbuf();
+	char test[110] = "";
+	file_buf.read(test, 100);
+	EXPECT_EQ(_100bytes, string(test)) << "Wrong string written";
+	EXPECT_EQ(file::max_size, (int)test_file.check_file_size()) << "File size beyond maximum";
 
-					if (remove(file_name.c_str()) != 0)
-						Logger::WriteMessage("File deletion failed!!");
-				}
-			}
+	test_file.close_file();
+	check.close();
+	remove((string(file_prefix) + file_name).c_str());
+}
 
-			TEST_METHOD(WritingTo3DifferentFilesTest)
-			{
-				const string write_str = _600bytes;
-				const int pos = 450;
-				string test_str(_600bytes);
-				int test_pos = pos;
+TEST(LocalFileTests, FileWriteBeyondMaxSizeTest)
+{
+	string file_name = "FileWriteBeyondMaxSizeTest.txt";
+	stringstream file_buf;
 
-				file_manager file_test(file::Mode::READ_WRITE);
-				file_test.seek(test_str, test_pos);
-				file_test.close_all_files();
+	file test_file(file_name, file::Mode::WRITE_ONLY);
+	int char_written = test_file.write(450, _100bytes.c_str());
 
-				int file_index = (pos + write_str.size()) / file::max_size;
-				fstream file;
-				string file_name;
-				stringstream file_buf;
+	fstream check(string(file_prefix) + file_name, ios::out | ios::in | ios::binary);
+	if (!check.is_open())
+		FAIL() << "File not created!";
 
-				for (int i = 0; i < file_index + 1; i++)
-				{
-					file_name = string(file_prefix);
-					file_name.append("test" + to_string(i) + ".txt");
-					file.open(file_name, ios::out | ios::in | ios::binary);
-					file_buf << file.rdbuf();
-					file.close();
-				}
+	file_buf << check.rdbuf();
+	file_buf.seekg(450, ios::beg);
+	char test[100] = "";
+	file_buf.read(test, sizeof(test));
 
-				char test[700] = "";
-				file_buf.seekg(pos, ios::beg);
-				file_buf.read(test, strlen(write_str.c_str()));
-				Assert::AreEqual(write_str, string(test), L"Strings not written correctly");
+	EXPECT_EQ(50, char_written) << "Characters written incorrectly returned";
+	EXPECT_EQ(_100bytes.substr(0, 50).c_str(), test) << "Incorrect string written to file";
+	EXPECT_EQ(file::max_size, (int)test_file.check_file_size()) << "File size beyond maximum";
 
-				for (int i = 0; i < 4; i++)
-				{
-					file_name = string(file_prefix);
-					file_name.append("test" + to_string(i) + ".txt");
+	check.close();
+	test_file.close_file();
+	remove((string(file_prefix) + file_name).c_str());
+}
 
-					if (remove(file_name.c_str()) != 0)
-						Logger::WriteMessage("File deletion failed!!");
-				}
-			}
-		};
-	}
+TEST(LocalFileTests, FileOutOfBoundsWriteTest)
+{
+	string file_name = "FileOutOfBoundsWriteTest.txt";
+
+	file test_file(file_name, file::Mode::WRITE_ONLY);
+	int char_written = test_file.write(750, _500bytes.c_str());
+	int length = static_cast<int>(test_file.check_file_size());
+
+	EXPECT_EQ(0, char_written) << "Characters written to full file";
+	EXPECT_EQ(file::max_size, length) << "Size exceeded max file size or decreased than max";
+
+	test_file.close_file();
+	remove((string(file_prefix) + file_name).c_str());
 }
