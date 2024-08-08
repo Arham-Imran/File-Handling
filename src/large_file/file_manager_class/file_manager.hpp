@@ -24,6 +24,7 @@ namespace large_file
             file_manager(int, file::Mode);
             ~file_manager();
             void seek(string&, int&);
+            void read(char*, int, int&);
             void close_all_files();
         };
     }

@@ -38,6 +38,11 @@ namespace large_file
 
         void file_manager::seek(string& line, int& pos)
         {
+            if(pos < 0)
+            {
+                return;
+            }
+
             int files_to_create = ((pos + line.size())/ file::max_size) + 1;
             create_files(files_to_create - num_of_files_open);
             int characters_written = 0;
@@ -57,6 +62,36 @@ namespace large_file
                     characters_written = 0;
                 }
                 else if (characters_written == line.size())
+                {
+                    return;
+                }
+            }
+        }
+
+        void file_manager::read(char* readBuffer, int count, int& pos)
+        {
+            if(count <= 0 || pos < 0)
+            {
+                return;
+            }
+            
+            int charactersRead = 0;
+            int fileIndex = pos / file::max_size;
+            if(fileIndex >= num_of_files_open)
+            {
+                return;
+            }
+
+            for(int i = fileIndex; i < num_of_files_open; i++)
+            {
+                files_record[i]->seekGet(pos % file::max_size, file::Dir::BEG);
+                charactersRead = files_record[i]->read(count, readBuffer);
+                if(charactersRead >= 0 && charactersRead < count)
+                {
+                    pos = 0;
+                    count -= charactersRead;
+                }
+                else if(charactersRead == count)
                 {
                     return;
                 }
