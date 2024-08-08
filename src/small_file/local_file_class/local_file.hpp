@@ -17,6 +17,10 @@ namespace small_file
             {
                 APPEND, BINARY, READ_ONLY, WRITE_ONLY, READ_WRITE, TRUNCATE, APPEND_AT_END
             };
+            enum class Dir
+            {
+                BEG, CUR, END
+            };
 
             private:
             string file_prefix = "../test_files/";
@@ -37,6 +41,11 @@ namespace small_file
             void close_file();
             streamsize check_file_size();
             int write(int, const char*);
+            int read(int, char*);
+            int tellGet();
+            void seekGet(int, Dir);
+            int tellPut();
+            void seekPut(int, Dir);
         };
     }
 }

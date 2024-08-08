@@ -184,5 +184,97 @@ namespace small_file
                 return -1;
             }
         }
+
+        int file::read(int count, char* readBuffer)
+        {
+            if((count + file_obj.tellp()) > file::max_size)
+            {
+                file_obj.read(readBuffer, file::max_size - file_obj.tellg());
+                return (file::max_size - file_obj.tellg());
+            }
+            else if((count + file_obj.tellp()) <= file::max_size)
+            {
+                file_obj.read(readBuffer, count);
+                return count;
+            }
+            else if(file_obj.tellp() >= file::max_size)
+            {
+                return 0;
+            }
+            else
+            {
+                return -1;
+            }
+        }
+
+        int file::tellGet()
+        {
+            return file_obj.tellp();
+        }
+
+        void file::seekGet(int pos, Dir dir)
+        {
+            switch(dir)
+            {
+                case Dir::BEG:
+                if(pos < 0)
+                {
+                    return;
+                }
+                file_obj.seekg(pos, ios::beg);
+                break;
+
+                case Dir::CUR:
+                file_obj.seekg(pos, ios::cur);
+                break;
+
+                case Dir::END:
+                if(pos < 0)
+                {
+                    return;
+                }
+                file_obj.seekg(pos, ios::end);
+                break;
+
+                default:
+                return;
+                break;
+            }
+        }
+
+        int file::tellPut()
+        {
+            return file_obj.tellp();
+        }
+
+        void file::seekPut(int pos, Dir dir)
+        {
+            switch(dir)
+            {
+                case Dir::BEG:
+                if(pos < 0)
+                {
+                    return;
+                }
+                file_obj.seekp(pos, ios::beg);
+                break;
+
+                case Dir::CUR:
+                file_obj.seekp(pos, ios::cur);
+                break;
+
+                case Dir::END:
+                if(pos < 0)
+                {
+                    return;
+                }
+                file_obj.seekp(pos, ios::end);
+                break;
+
+                default:
+                return;
+                break;
+            }
+        }
     }
 }
