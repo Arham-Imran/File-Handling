@@ -6,8 +6,6 @@
 using namespace std;
 using namespace small_file::local_file;
 
-
-
 const char* file_prefix = "../test_files/";
 string _100bytes = "HelloWuEC7wOv238xglW75H8ZoCTPRcoudsY1RqB96XC"
 						"ZnmMKp3BXb2FYCWbI1sWgPRuv3OeYSuUGz7UzXJMxEy"
@@ -117,7 +115,7 @@ TEST(LocalFileTests, FileWriteBeyondMaxSizeTest)
 	file_buf.read(test, sizeof(test));
 
 	EXPECT_EQ(50, char_written) << "Characters written incorrectly returned";
-	EXPECT_EQ(_100bytes.substr(0, 50).c_str(), test) << "Incorrect string written to file";
+	EXPECT_STREQ(_100bytes.substr(0, 50).c_str(), test) << "Incorrect string written to file";
 	EXPECT_EQ(file::max_size, (int)test_file.check_file_size()) << "File size beyond maximum";
 
 	check.close();
