@@ -187,7 +187,11 @@ namespace small_file
 
         int file::read(int count, char* readBuffer)
         {
-            if((count + file_obj.tellp()) > file::max_size)
+            if(file_obj.tellp() >= file::max_size)
+            {
+                return 0;
+            }
+            else if((count + file_obj.tellp()) > file::max_size)
             {
                 file_obj.read(readBuffer, file::max_size - file_obj.tellg());
                 return (file::max_size - file_obj.tellg());
@@ -196,10 +200,6 @@ namespace small_file
             {
                 file_obj.read(readBuffer, count);
                 return count;
-            }
-            else if(file_obj.tellp() >= file::max_size)
-            {
-                return 0;
             }
             else
             {
