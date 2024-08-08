@@ -27,12 +27,13 @@ namespace large_file
         void file_manager::create_files(int num_of_files)
         {
             file* new_file = NULL;
-            for(int i = 0; i < num_of_files; i++)
+            for(int i = num_of_files_open; i < (num_of_files_open + num_of_files); i++)
             {
                 new_file = new file("test" + to_string(i) + ".txt", file_mode);
                 files_record.push_back(new_file);
-                num_of_files_open++;
+                // num_of_files_open++;
             }
+            num_of_files_open += num_of_files;
         }
 
         void file_manager::seek(string& line, int& pos)

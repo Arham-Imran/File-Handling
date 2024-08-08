@@ -153,7 +153,7 @@ namespace small_file
 
         int file::write(int pos, const char* new_data)
         {
-            char write_buffer[200] = "";
+            char write_buffer[501] = "";
             if (pos >= max_size)
             {
                 return 0;
