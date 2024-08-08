@@ -134,7 +134,7 @@ namespace small_file
             if(file_obj.is_open())
                 file_obj.close();   
             
-            file_obj.open(file_name, ios::out | ios::in | ios::binary);
+            file_obj.open(file_prefix + file_name, ios::out | ios::in | ios::binary);
             if (!file_obj.is_open())
             {
                 open_file(file_name, file_mode);
