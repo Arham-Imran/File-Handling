@@ -80,7 +80,8 @@ TEST(LocalFileTests, WriteFullStringToFileTest)
 	stringstream file_buf;
 
 	file test_file(file_name, file::Mode::WRITE_ONLY);
-	test_file.write(0, _100bytes.c_str());
+	test_file.seekPut(0, file::Dir::BEG);
+	test_file.write(_100bytes.size(), _100bytes.c_str());
 
 	fstream check(string(file_prefix) + file_name, ios::out | ios::in | ios::binary);
 	if (!check.is_open())
@@ -103,7 +104,8 @@ TEST(LocalFileTests, FileWriteBeyondMaxSizeTest)
 	stringstream file_buf;
 
 	file test_file(file_name, file::Mode::WRITE_ONLY);
-	int char_written = test_file.write(450, _100bytes.c_str());
+	test_file.seekPut(450, file::Dir::BEG);
+	int char_written = test_file.write(_100bytes.size(), _100bytes.c_str());
 
 	fstream check(string(file_prefix) + file_name, ios::out | ios::in | ios::binary);
 	if (!check.is_open())
@@ -128,6 +130,7 @@ TEST(LocalFileTests, FileOutOfBoundsWriteTest)
 	string file_name = "FileOutOfBoundsWriteTest.txt";
 
 	file test_file(file_name, file::Mode::WRITE_ONLY);
+	test_file.seekPut(0, file::Dir::END);
 	int char_written = test_file.write(750, _500bytes.c_str());
 	int length = static_cast<int>(test_file.check_file_size());
 
