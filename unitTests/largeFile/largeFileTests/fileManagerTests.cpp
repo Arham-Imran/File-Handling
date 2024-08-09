@@ -2,12 +2,12 @@
 #include <string>
 #include <fstream>
 #include "gtest/gtest.h"
-#include "file_manager.hpp"
+#include "fileManager.hpp"
 using namespace std;
 using namespace SmallFile::LocalFile;
 using namespace LargeFile::FileManager;
 
-const char* filePrefix = "../test_files/";
+const char* filePrefix = "../testFiles/";
 const string _600bytes = "dDvxR48Ubch5Z2LgDyrOTsqiEugtLd5oKh6dj0evcv5eTvVqj"
 						"i3JvA2wlt8UCtEUEtxKybEKF5SL2l7vmOgXm3q3jJDha36pM"
 						"fwYSiG1sgJAMDj6qoNv9tn4cQqFKwi9otgBctWGrZXY73Z3Z"
@@ -25,24 +25,24 @@ const string _600bytes = "dDvxR48Ubch5Z2LgDyrOTsqiEugtLd5oKh6dj0evcv5eTvVqj"
 TEST(FileManagerTests, FileCreationTest)
 {
 	const int createFiles = 4;
-	int huge_file_size = 4000;  //size in bytes
-	FileManager file_test(huge_file_size, File::Mode::WRITE_ONLY);
-	file_test.createFiles(createFiles);
+	int hugeFileSize = 4000;  //size in bytes
+	FileManager fileTest(hugeFileSize, File::Mode::WRITE_ONLY);
+	fileTest.createFiles(createFiles);
 
-	fstream test_file;
+	fstream testFile;
 	string fileName;
-	for (int i = 0; i < (createFiles + (huge_file_size / File::maxSize) + 1); i++)
+	for (int i = 0; i < (createFiles + (hugeFileSize / File::maxSize) + 1); i++)
 	{
 		fileName = string(filePrefix);
 		fileName.append("test" + to_string(i) + ".txt");
-		test_file.open(fileName);
+		testFile.open(fileName);
 
-		EXPECT_TRUE(test_file.is_open()) << "Files not created by File manager class";
-		test_file.close();
+		EXPECT_TRUE(testFile.is_open()) << "Files not created by File manager class";
+		testFile.close();
 	}
-	file_test.closeAllFiles();
+	fileTest.closeAllFiles();
 
-	for (int i = 0; i < (createFiles + 1 + (huge_file_size)/File::maxSize); i++)
+	for (int i = 0; i < (createFiles + 1 + (hugeFileSize)/File::maxSize); i++)
 	{
 		fileName = string(filePrefix);
 		fileName.append("test" + to_string(i) + ".txt");
@@ -53,28 +53,28 @@ TEST(FileManagerTests, FileCreationTest)
 
 TEST(FileManagerTests, WritingToASingleFileTest)
 {
-	const string write_str = "Hello Test";
+	const string writeStr = "Hello Test";
 	const int pos = 50;
-	string test_str(write_str);
-	int test_pos = pos;
+	string testStr(writeStr);
+	int testPos = pos;
 
-	FileManager file_test(File::Mode::WRITE_ONLY);
-	file_test.write(test_str, test_str.size(), test_pos);
-	file_test.closeAllFiles();
+	FileManager fileTest(File::Mode::WRITE_ONLY);
+	fileTest.write(testStr, testStr.size(), testPos);
+	fileTest.closeAllFiles();
 
 	string fileName = string(filePrefix) + "test0.txt";
 	fstream file(fileName, ios::in | ios::out);
 	EXPECT_TRUE(file.is_open()) << "File not created by FileManager";
-	stringstream file_buf;
+	stringstream fileBuf;
 	char test[20] = "";
 
-	file_buf << file.rdbuf();
-	file_buf.seekg(pos, ios::beg);
-	file_buf.read(test, strlen(write_str.c_str()));
-	EXPECT_STREQ(write_str.c_str(), test) << "String not written correctly at correct postion";
+	fileBuf << file.rdbuf();
+	fileBuf.seekg(pos, ios::beg);
+	fileBuf.read(test, strlen(writeStr.c_str()));
+	EXPECT_STREQ(writeStr.c_str(), test) << "String not written correctly at correct postion";
 
 	file.close();
-	for (int i = 0; i < (1 + (pos + write_str.size() / File::maxSize)); i++)
+	for (int i = 0; i < (1 + (pos + writeStr.size() / File::maxSize)); i++)
 	{
 		fileName = string(filePrefix);
 		fileName.append("test" + to_string(i) + ".txt");
@@ -85,35 +85,35 @@ TEST(FileManagerTests, WritingToASingleFileTest)
 
 TEST(FileManagerTests, WritingTo2DifferentFilesTest)
 {
-	const string write_str = "Hello Test";
+	const string writeStr = "Hello Test";
 	const int pos = 494;
-	string test_str(write_str);
-	int test_pos = pos;
+	string testStr(writeStr);
+	int testPos = pos;
 
-	FileManager file_test(File::Mode::WRITE_ONLY);
-	file_test.write(test_str, test_str.size(), test_pos);
-	file_test.closeAllFiles();
+	FileManager fileTest(File::Mode::WRITE_ONLY);
+	fileTest.write(testStr, testStr.size(), testPos);
+	fileTest.closeAllFiles();
 
-	int file_index = (pos + write_str.size()) / File::maxSize;
+	int fileIndex = (pos + writeStr.size()) / File::maxSize;
 	fstream file;
 	string fileName;
-	stringstream file_buf;
+	stringstream fileBuf;
 
-	for (int i = 0; i < file_index + 1; i++)
+	for (int i = 0; i < fileIndex + 1; i++)
 	{
 		fileName = string(filePrefix);
 		fileName.append("test" + to_string(i) + ".txt");
 		file.open(fileName, ios::out | ios::in | ios::binary);
-		file_buf << file.rdbuf();
+		fileBuf << file.rdbuf();
 		file.close();	
 	}
 
 	char test[20] = "";
-	file_buf.seekg(pos, ios::beg);
-	file_buf.read(test, strlen(write_str.c_str()));
-	EXPECT_EQ(write_str, string(test)) << "Strings not written correctly";
+	fileBuf.seekg(pos, ios::beg);
+	fileBuf.read(test, strlen(writeStr.c_str()));
+	EXPECT_EQ(writeStr, string(test)) << "Strings not written correctly";
 
-	for (int i = 0; i < (1 + (pos + write_str.size() / File::maxSize)); i++)
+	for (int i = 0; i < (1 + (pos + writeStr.size() / File::maxSize)); i++)
 	{
 		fileName = string(filePrefix);
 		fileName.append("test" + to_string(i) + ".txt");
@@ -124,35 +124,35 @@ TEST(FileManagerTests, WritingTo2DifferentFilesTest)
 
 TEST(FileManagerTests, WritingTo3DifferentFilesTest)
 {
-	const string write_str = _600bytes;
+	const string writeStr = _600bytes;
 	const int pos = 450;
-	string test_str(_600bytes);
-	int test_pos = pos;
+	string testStr(_600bytes);
+	int testPos = pos;
 
-	FileManager file_test(File::Mode::WRITE_ONLY);
-	file_test.write(test_str, test_str.size(), test_pos);
-	file_test.closeAllFiles();
+	FileManager fileTest(File::Mode::WRITE_ONLY);
+	fileTest.write(testStr, testStr.size(), testPos);
+	fileTest.closeAllFiles();
 
-	int file_index = (pos + write_str.size()) / File::maxSize;
+	int fileIndex = (pos + writeStr.size()) / File::maxSize;
 	fstream file;
 	string fileName;
-	stringstream file_buf;
+	stringstream fileBuf;
 
-	for (int i = 0; i < file_index + 1; i++)
+	for (int i = 0; i < fileIndex + 1; i++)
 	{
 		fileName = string(filePrefix);
 		fileName.append("test" + to_string(i) + ".txt");
 		file.open(fileName, ios::out | ios::in | ios::binary);
-		file_buf << file.rdbuf();
+		fileBuf << file.rdbuf();
 		file.close();
 	}
 
 	char test[700] = "";
-	file_buf.seekg(pos, ios::beg);
-	file_buf.read(test, strlen(write_str.c_str()));
-	EXPECT_EQ(write_str, string(test)) << "Strings not written correctly";
+	fileBuf.seekg(pos, ios::beg);
+	fileBuf.read(test, strlen(writeStr.c_str()));
+	EXPECT_EQ(writeStr, string(test)) << "Strings not written correctly";
 
-	for (int i = 0; i < (1 + (pos + write_str.size() / File::maxSize)); i++)
+	for (int i = 0; i < (1 + (pos + writeStr.size() / File::maxSize)); i++)
 	{
 		fileName = string(filePrefix);
 		fileName.append("test" + to_string(i) + ".txt");

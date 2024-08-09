@@ -3,13 +3,13 @@ project(File_Handling VERSION 0.1.0 LANGUAGES C CXX)
 
 add_executable(${PROJECT_NAME} main.cpp)
 
-add_subdirectory(src/small_file/local_file_class)
-add_subdirectory(src/large_file/file_manager_class)
+add_subdirectory(src/smallFile/localFileClass)
+add_subdirectory(src/largeFile/fileManagerClass)
 
-target_link_libraries(${PROJECT_NAME} PUBLIC file_manager)
+target_link_libraries(${PROJECT_NAME} PUBLIC fileManager)
 target_include_directories(${PROJECT_NAME} 
-    PUBLIC src/small_file/local_file_class
-    PUBLIC src/large_file/file_manager_class
+    PUBLIC src/smallFile/localFileClass
+    PUBLIC src/largeFile/fileManagerClass
 )
 
 # google test integration
@@ -24,23 +24,23 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
-file(GLOB_RECURSE TEST_SOURCES "./unit_tests/*.cpp")
+# file(GLOB_RECURSE TEST_SOURCES "./unitTests/*.cpp")
 
-add_executable(local_file_tests ${CMAKE_SOURCE_DIR}/unit_tests/small_file/local_file_tests/local_file_tests.cpp)
-target_link_libraries(local_file_tests PUBLIC gtest_main local_file)
-target_include_directories(local_file_tests PUBLIC ${CMAKE_SOURCE_DIR}/src/small_file/local_file_class)
+add_executable(localFileTests ${CMAKE_SOURCE_DIR}/unitTests/smallFile/localFileTests/localFileTests.cpp)
+target_link_libraries(localFileTests PUBLIC gtest_main localFile)
+target_include_directories(localFileTests PUBLIC ${CMAKE_SOURCE_DIR}/src/smallFile/localFileClass)
 
-add_executable(file_manager_tests ${CMAKE_SOURCE_DIR}/unit_tests/large_file/large_file_tests/file_manager_tests.cpp)
-target_link_libraries(file_manager_tests PUBLIC gtest_main file_manager)
-target_include_directories(file_manager_tests PUBLIC ${CMAKE_SOURCE_DIR}/src/large_file/file_manager_class)
+add_executable(fileManagerTests ${CMAKE_SOURCE_DIR}/unitTests/largeFile/largeFileTests/fileManagerTests.cpp)
+target_link_libraries(fileManagerTests PUBLIC gtest_main fileManager)
+target_include_directories(fileManagerTests PUBLIC ${CMAKE_SOURCE_DIR}/src/largeFile/fileManagerClass)
 
 # foreach(TEST_SOURCE ${TEST_SOURCES})  // This doesn't work as include directories aren't linked correctly
 #    get_filename_component(TEST_NAME ${TEST_SOURCE} NAME_WE)
 #    add_executable(${TEST_NAME} ${TEST_SOURCE})
-#    target_link_libraries(${TEST_NAME} PUBLIC gtest_main file_manager local_file)
+#    target_link_libraries(${TEST_NAME} PUBLIC gtest_main fileManager localFile)
 #    target_include_directories(${TEST_NAME} 
-#    PUBLIC ${CMAKE_SOURCE_DIR}/src/small_file/local_file_class
-#    PUBLIC ${CMAKE_SOURCE_DIR}/src/large_file/file_manager_class
+#    PUBLIC ${CMAKE_SOURCE_DIR}/src/smallFile/localFileClass
+#    PUBLIC ${CMAKE_SOURCE_DIR}/src/largeFile/fileManagerClass
 #    )
 # #  add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})   //This is for CTest only. Only one test per executable in ctest
 # endforeach()

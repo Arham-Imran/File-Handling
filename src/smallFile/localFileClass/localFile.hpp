@@ -23,7 +23,7 @@ namespace SmallFile
             };
 
             private:
-            string filePrefix = "../test_files/";
+            string filePrefix = "../testFiles/";
             string fileName;
             fstream fileObj;
             streamsize fileSize = 0;

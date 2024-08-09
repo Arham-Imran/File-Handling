@@ -2,11 +2,11 @@
 #include <string>
 #include <fstream>
 #include "gtest/gtest.h"
-#include "local_file.hpp"
+#include "localFile.hpp"
 using namespace std;
 using namespace SmallFile::LocalFile;
 
-const char* filePrefix = "../test_files/";
+const char* filePrefix = "../testFiles/";
 string _100bytes = "HelloWuEC7wOv238xglW75H8ZoCTPRcoudsY1RqB96XC"
 						"ZnmMKp3BXb2FYCWbI1sWgPRuv3OeYSuUGz7UzXJMxEy"
 						"Z9DlVdOVqnJA6";
@@ -26,8 +26,8 @@ TEST(LocalFileTests, ExisitingFileOpenTest)
 {
 	string fileName = "ExisitingFileOpenTest.txt";
 
-	fstream test_file(string(filePrefix) + fileName, ios::out);
-	test_file.close();
+	fstream testFile(string(filePrefix) + fileName, ios::out);
+	testFile.close();
 
 	File check(fileName, File::Mode::READ_ONLY);
 	EXPECT_TRUE(check.fileIsOpen()) << "Failed to open existing file";
@@ -42,11 +42,11 @@ TEST(LocalFileTests, CreateAndOpenNewFileTest)
 
 	File check(fileName, File::Mode::WRITE_ONLY);
 
-	fstream test_file(string(filePrefix) + fileName, ios::out | ios::in);
-	EXPECT_TRUE(test_file.is_open()) << "Failed to create new file";
+	fstream testFile(string(filePrefix) + fileName, ios::out | ios::in);
+	EXPECT_TRUE(testFile.is_open()) << "Failed to create new file";
 
 	check.closeFile();
-	test_file.close();
+	testFile.close();
 	remove((string(filePrefix) + fileName).c_str());
 }
 
@@ -54,45 +54,45 @@ TEST(LocalFileTests, CheckFileSizeTest)
 {
 	string fileName = "CheckFileSizeTest.txt";
 
-	fstream dump_file(string(filePrefix) + fileName, ios::out);
-	dump_file << _100bytes;
-	dump_file.close(); 
+	fstream dumpFile(string(filePrefix) + fileName, ios::out);
+	dumpFile << _100bytes;
+	dumpFile.close(); 
 
-	File test_file(fileName, File::Mode::READ_WRITE);
-	int length = static_cast<int>(test_file.checkFileSize());
+	File testFile(fileName, File::Mode::READ_WRITE);
+	int length = static_cast<int>(testFile.checkFileSize());
 	EXPECT_EQ(File::maxSize, length) << "Incorrect file size after writing 100 bytes";
 
-	dump_file.open(string(filePrefix) + fileName, ios::out | ios::trunc);
-	dump_file << _500bytes;
-	dump_file.close();
+	dumpFile.open(string(filePrefix) + fileName, ios::out | ios::trunc);
+	dumpFile << _500bytes;
+	dumpFile.close();
 
-	length = static_cast<int>(test_file.checkFileSize());
+	length = static_cast<int>(testFile.checkFileSize());
 	EXPECT_EQ(File::maxSize, length) << "Incorrect file size after writing 500 bytes";
 
-	test_file.closeFile();
+	testFile.closeFile();
 	remove((string(filePrefix) + fileName).c_str());
 }
 
 TEST(LocalFileTests, WriteFullStringToFileTest)
 {
 	string fileName = "WriteStringToFileTest.txt";
-	stringstream file_buf;
+	stringstream fileBuf;
 
-	File test_file(fileName, File::Mode::WRITE_ONLY);
-	test_file.seekPut(0, File::Dir::BEG);
-	test_file.write(_100bytes.size(), _100bytes.c_str());
+	File testFile(fileName, File::Mode::WRITE_ONLY);
+	testFile.seekPut(0, File::Dir::BEG);
+	testFile.write(_100bytes.size(), _100bytes.c_str());
 
 	fstream check(string(filePrefix) + fileName, ios::out | ios::in | ios::binary);
 	if (!check.is_open())
 		FAIL() << "File not created!";
 	
-	file_buf << check.rdbuf();
+	fileBuf << check.rdbuf();
 	char test[110] = "";
-	file_buf.read(test, 100);
+	fileBuf.read(test, 100);
 	EXPECT_EQ(_100bytes, string(test)) << "Wrong string written";
-	EXPECT_EQ(File::maxSize, (int)test_file.checkFileSize()) << "File size beyond maximum";
+	EXPECT_EQ(File::maxSize, (int)testFile.checkFileSize()) << "File size beyond maximum";
 
-	test_file.closeFile();
+	testFile.closeFile();
 	check.close();
 	remove((string(filePrefix) + fileName).c_str());
 }
@@ -100,27 +100,27 @@ TEST(LocalFileTests, WriteFullStringToFileTest)
 TEST(LocalFileTests, FileWriteBeyondMaxSizeTest)
 {
 	string fileName = "FileWriteBeyondMaxSizeTest.txt";
-	stringstream file_buf;
+	stringstream fileBuf;
 
-	File test_file(fileName, File::Mode::WRITE_ONLY);
-	test_file.seekPut(450, File::Dir::BEG);
-	int char_written = test_file.write(_100bytes.size(), _100bytes.c_str());
+	File testFile(fileName, File::Mode::WRITE_ONLY);
+	testFile.seekPut(450, File::Dir::BEG);
+	int charWritten = testFile.write(_100bytes.size(), _100bytes.c_str());
 
 	fstream check(string(filePrefix) + fileName, ios::out | ios::in | ios::binary);
 	if (!check.is_open())
 		FAIL() << "File not created!";
 
-	file_buf << check.rdbuf();
-	file_buf.seekg(450, ios::beg);
+	fileBuf << check.rdbuf();
+	fileBuf.seekg(450, ios::beg);
 	char test[100] = "";
-	file_buf.read(test, sizeof(test));
+	fileBuf.read(test, sizeof(test));
 
-	EXPECT_EQ(50, char_written) << "Characters written incorrectly returned";
+	EXPECT_EQ(50, charWritten) << "Characters written incorrectly returned";
 	EXPECT_STREQ(_100bytes.substr(0, 50).c_str(), test) << "Incorrect string written to file";
-	EXPECT_EQ(File::maxSize, (int)test_file.checkFileSize()) << "File size beyond maximum";
+	EXPECT_EQ(File::maxSize, (int)testFile.checkFileSize()) << "File size beyond maximum";
 
 	check.close();
-	test_file.closeFile();
+	testFile.closeFile();
 	remove((string(filePrefix) + fileName).c_str());
 }
 
@@ -128,15 +128,15 @@ TEST(LocalFileTests, FileOutOfBoundsWriteTest)
 {
 	string fileName = "FileOutOfBoundsWriteTest.txt";
 
-	File test_file(fileName, File::Mode::WRITE_ONLY);
-	test_file.seekPut(0, File::Dir::END);
-	int char_written = test_file.write(750, _500bytes.c_str());
-	int length = static_cast<int>(test_file.checkFileSize());
+	File testFile(fileName, File::Mode::WRITE_ONLY);
+	testFile.seekPut(0, File::Dir::END);
+	int charWritten = testFile.write(750, _500bytes.c_str());
+	int length = static_cast<int>(testFile.checkFileSize());
 
-	EXPECT_EQ(0, char_written) << "Characters written to full file";
+	EXPECT_EQ(0, charWritten) << "Characters written to full file";
 	EXPECT_EQ(File::maxSize, length) << "Size exceeded max file size or decreased than max";
 
-	test_file.closeFile();
+	testFile.closeFile();
 	remove((string(filePrefix) + fileName).c_str());
 }
 

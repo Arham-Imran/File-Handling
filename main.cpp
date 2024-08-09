@@ -4,12 +4,12 @@
 #include <string>
 #include <limits>
 #include <vector>
-#include "file_manager.hpp"
+#include "fileManager.hpp"
 using namespace std;
 using namespace SmallFile::LocalFile;
 using namespace LargeFile::FileManager;
 
-void parse_input(int& pos, string& line)
+void parseInput(int& pos, string& line)
 {
     cin >> pos;
     getline(cin, line);
@@ -24,7 +24,7 @@ int main()
     
     while(true)
     {
-        parse_input(pos, line);
+        parseInput(pos, line);
         new_filesystem.write(line, line.size(), pos);
     }
 }

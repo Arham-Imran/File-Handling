@@ -1,6 +1,6 @@
 #include <limits>
 #include <cstring>
-#include "local_file.hpp"
+#include "localFile.hpp"
 
 namespace SmallFile
 {
