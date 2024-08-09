@@ -258,4 +258,8 @@ TEST(LocalFileTests, TellAndSeekPutTest)
 	test.write(75, _500bytes.c_str());
 	check.read(checkBuffer, 75);
 	EXPECT_STREQ(checkBuffer, (_500bytes.substr(0, 75).c_str())) << "Not the same string!";
+
+	test.close_file();
+	check.close();
+	remove((string(file_prefix) + fileName).c_str());
 }
