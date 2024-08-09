@@ -36,30 +36,33 @@ namespace large_file
             num_of_files_open += num_of_files;
         }
 
-        void file_manager::seek(string& line, int& pos)
+        void file_manager::write(string& line, int count, int& pos)
         {
             if(pos < 0)
             {
                 return;
             }
 
-            int files_to_create = ((pos + line.size())/ file::max_size) + 1;
+            int files_to_create = ((pos + count)/ file::max_size) + 1;
             create_files(files_to_create - num_of_files_open);
+
             int characters_written = 0;
-            
-            for (int i = 0; i < num_of_files_open; i++)   //checks and writes into existing files
+            int fileIndex = pos / file::max_size;
+            if(fileIndex >= num_of_files_open)
             {
-                characters_written = files_record[i]->file::write(pos, line.c_str());
-                if (characters_written <= 0)
-                {
-                    pos -= file::max_size;
-                    continue;
-                }
-                else if (characters_written > 0 && characters_written < line.size())
+                return;
+            }
+            
+            for (int i = fileIndex; i < num_of_files_open; i++)   //checks and writes into existing files
+            {
+                files_record[i]->seekPut(pos % file::max_size, file::Dir::BEG);
+                characters_written = files_record[i]->file::write(count, line.c_str());
+                if (characters_written > 0 && characters_written < count)
                 {
                     line.erase(line.begin(), line.begin() + characters_written);
                     pos = 0;
                     characters_written = 0;
+                    count -= characters_written;
                 }
                 else if (characters_written == line.size())
                 {

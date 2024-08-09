@@ -23,7 +23,7 @@ namespace large_file
             file_manager(file::Mode);
             file_manager(int, file::Mode);
             ~file_manager();
-            void seek(string&, int&);
+            void write(string&, int, int&);
             void read(char*, int, int&);
             void close_all_files();
         };
