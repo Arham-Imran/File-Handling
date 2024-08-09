@@ -154,30 +154,29 @@ namespace small_file
         int file::write(int count, const char* new_data)
         {
             char write_buffer[501] = "";
-            if (pos >= max_size)
+            if (tellPut() >= max_size)
             {
                 return 0;
             }
-            else if (pos + strlen(new_data) > max_size)
+            else if (tellPut() + count > max_size)
             {
-                strncpy(write_buffer, new_data, max_size - pos);
-                // new_data.resize(max_size - pos);
+                strncpy(write_buffer, new_data, max_size - tellPut());
                 
-                file_obj.seekp(pos, ios::beg);
                 file_obj << write_buffer;
                 file_obj.flush();
 
                 file_size += strlen(write_buffer); 
                 return strlen(write_buffer);
             }
-            else if (pos + strlen(new_data) <= max_size)
+            else if (tellPut() + count <= max_size)
             {
-                file_obj.seekp(pos, ios::beg);
-                file_obj << new_data;
+                strncpy(write_buffer, new_data, count);
+
+                file_obj.write(write_buffer, count);
                 file_obj.flush();
 
                 file_size += strlen(write_buffer);
-                return strlen(new_data);
+                return strlen(write_buffer);
             }
             else
             {
