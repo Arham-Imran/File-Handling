@@ -160,3 +160,94 @@ TEST(FileManagerTests, WritingTo3DifferentFilesTest)
 		remove(file_name.c_str());
 	}
 }
+
+TEST(FileManagerTests, ReadingFromSingleFileTest)
+{
+	string fileName = "test0.txt";
+	int pos = 0;
+	file_manager fileCreator(499, file::Mode::WRITE_ONLY), fileTest(file::Mode::READ_ONLY);
+	fstream check(string(file_prefix) + fileName, ios::in);
+	char testBuffer[501] = "";
+	char checkBuffer[501] = "";
+	
+	fileTest.open_files(1);
+	fileTest.read(testBuffer, sizeof(testBuffer), pos);
+	check.seekg(pos, ios::beg);
+	check.read(checkBuffer, sizeof(checkBuffer) - 1);
+	EXPECT_STREQ(testBuffer, checkBuffer);
+
+	fileCreator.close_all_files();
+	fileTest.close_all_files();
+	check.close();
+
+	remove((string(file_prefix) + fileName).c_str());
+}
+
+TEST(FileManagerTests, ReadingFrom2FilesTest)
+{
+	const int testPos = 250;
+	int pos = testPos;
+	file_manager fileCreator(500, file::Mode::WRITE_ONLY), fileTest(file::Mode::READ_ONLY);
+	fstream check;
+	stringstream fileBuf;
+	char testBuffer[501] = "";
+	char checkBuffer[501] = "";
+	
+	fileTest.open_files(2);
+	fileTest.read(testBuffer, sizeof(testBuffer) - 1, pos);
+
+	for(int i = 0; i < 2; i++)
+	{
+		check.open(string(file_prefix) + "test" + to_string(i) + ".txt");
+		fileBuf << check.rdbuf();
+		check.close();
+	}
+
+	string temp = fileBuf.str();
+	fileBuf.seekg(testPos, ios::beg);
+	fileBuf.read(checkBuffer, sizeof(checkBuffer) - 1);
+	EXPECT_STREQ(testBuffer, checkBuffer);
+
+	fileCreator.close_all_files();
+	fileTest.close_all_files();
+	check.close();
+
+	for(int i = 0; i < 2; i++)
+	{
+		remove((string(file_prefix) + "test" + to_string(i) + ".txt").c_str());
+	}
+}
+
+TEST(FileManagerTests, ReadingFrom3FilesTest)
+{
+	const int testPos = 490;
+	int pos = testPos;
+	file_manager fileCreator(1000, file::Mode::WRITE_ONLY), fileTest(file::Mode::READ_ONLY);
+	fstream check;
+	stringstream fileBuf;
+	char testBuffer[701] = "";
+	char checkBuffer[701] = "";
+	
+	fileTest.open_files(3);
+	fileTest.read(testBuffer, sizeof(testBuffer) - 1, pos);
+
+	for(int i = 0; i < 3; i++)
+	{
+		check.open(string(file_prefix) + "test" + to_string(i) + ".txt");
+		fileBuf << check.rdbuf();
+		check.close();
+	}
+
+	fileBuf.seekg(testPos, ios::beg);
+	fileBuf.read(checkBuffer, sizeof(checkBuffer) - 1);
+	EXPECT_STREQ(testBuffer, checkBuffer);
+
+	fileCreator.close_all_files();
+	fileTest.close_all_files();
+	check.close();
+
+	for(int i = 0; i < 3; i++)
+	{
+		remove((string(file_prefix) + "test" + to_string(i) + ".txt").c_str());
+	}
+}
