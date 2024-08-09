@@ -59,7 +59,7 @@ TEST(FileManagerTests, WritingToASingleFileTest)
 	int test_pos = pos;
 
 	file_manager file_test(file::Mode::WRITE_ONLY);
-	file_test.seek(test_str, test_pos);
+	file_test.write(test_str, test_str.size(), test_pos);
 	file_test.close_all_files();
 
 	string file_name = string(file_prefix) + "test0.txt";
@@ -91,7 +91,7 @@ TEST(FileManagerTests, WritingTo2DifferentFilesTest)
 	int test_pos = pos;
 
 	file_manager file_test(file::Mode::WRITE_ONLY);
-	file_test.seek(test_str, test_pos);
+	file_test.write(test_str, test_str.size(), test_pos);
 	file_test.close_all_files();
 
 	int file_index = (pos + write_str.size()) / file::max_size;
@@ -130,7 +130,7 @@ TEST(FileManagerTests, WritingTo3DifferentFilesTest)
 	int test_pos = pos;
 
 	file_manager file_test(file::Mode::WRITE_ONLY);
-	file_test.seek(test_str, test_pos);
+	file_test.write(test_str, test_str.size(), test_pos);
 	file_test.close_all_files();
 
 	int file_index = (pos + write_str.size()) / file::max_size;
