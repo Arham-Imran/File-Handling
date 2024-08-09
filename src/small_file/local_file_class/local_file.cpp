@@ -151,7 +151,7 @@ namespace small_file
             return length;
         }
 
-        int file::write(int pos, const char* new_data)
+        int file::write(int count, const char* new_data)
         {
             char write_buffer[501] = "";
             if (pos >= max_size)
