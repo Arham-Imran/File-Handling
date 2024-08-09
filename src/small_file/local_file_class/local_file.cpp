@@ -229,7 +229,7 @@ namespace small_file
                 break;
 
                 case Dir::END:
-                if(pos < 0)
+                if(pos > 0)
                 {
                     return;
                 }
@@ -264,7 +264,7 @@ namespace small_file
                 break;
 
                 case Dir::END:
-                if(pos < 0)
+                if(pos > 0)
                 {
                     return;
                 }
