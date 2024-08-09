@@ -186,16 +186,17 @@ namespace small_file
 
         int file::read(int count, char* readBuffer)
         {
-            if(file_obj.tellp() >= file::max_size)
+            int currentPos = tellPut();
+            if(currentPos >= file::max_size)
             {
                 return 0;
             }
-            else if((count + file_obj.tellp()) > file::max_size)
+            else if((count + currentPos) > file::max_size)
             {
-                file_obj.read(readBuffer, file::max_size - file_obj.tellg());
-                return (file::max_size - file_obj.tellg());
+                file_obj.read(readBuffer, file::max_size - currentPos);
+                return (file::max_size - currentPos);
             }
-            else if((count + file_obj.tellp()) <= file::max_size)
+            else if((count + currentPos) <= file::max_size)
             {
                 file_obj.read(readBuffer, count);
                 return count;
