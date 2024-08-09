@@ -137,3 +137,122 @@ TEST(LocalFileTests, FileOutOfBoundsWriteTest)
 	test_file.close_file();
 	remove((string(file_prefix) + file_name).c_str());
 }
+
+TEST(LocalFileTests, FileReadTest)
+{
+	string fileName = "FileReadTest.txt";
+	fstream dump(string(file_prefix) + fileName, ios::out);
+	dump << _500bytes;
+	dump.close();
+
+	file testFile(fileName, file::Mode::READ_ONLY);
+	EXPECT_TRUE(testFile.file_is_open()) << "File did not open correctly";
+
+	char readBuffer[510] = "";
+	testFile.seekGet(0, file::Dir::BEG);
+	testFile.read(500, readBuffer);
+
+	EXPECT_STREQ(readBuffer, _500bytes.c_str()) << "String not correctly read from file";
+
+	testFile.close_file();
+	remove((string(file_prefix) + fileName).c_str());
+}
+
+TEST(LocalFileTests, FileReadBeyondMaxTest)
+{
+	string fileName = "FileReadBeyondMaxTest.txt";
+	fstream dump(string(file_prefix) + fileName, ios::out);
+	dump << _500bytes;
+	dump.close();
+
+	file testFile(fileName, file::Mode::READ_ONLY);
+	EXPECT_TRUE(testFile.file_is_open()) << "File did not open correctly";
+
+	char readBuffer[201] = "";
+	testFile.seekGet(300, file::Dir::BEG);
+	testFile.read(500, readBuffer);
+
+	EXPECT_STREQ(readBuffer, (_500bytes.substr(300, 200)).c_str()) << "String not correctly read from file";
+
+	testFile.close_file();
+	remove((string(file_prefix) + fileName).c_str());
+}
+
+TEST(LocalFileTests, TellAndSeekGetTest)
+{
+	string fileName = "SeekGetTest.txt";
+	char testBuffer[501] = "";
+	char checkBuffer[501] = "";
+	
+	file test(fileName, file::Mode::WRITE_ONLY);
+	test.close_file();
+
+	test.open_file(fileName, file::Mode::READ_ONLY);
+	fstream check(string(file_prefix) + fileName, ios::in);
+	EXPECT_TRUE(check.is_open()) << "File not opened/created!";
+
+	test.seekGet(45, file::Dir::BEG);
+	EXPECT_EQ(test.tellGet(), 45) << "Seek pointer not set correctly";
+	check.seekg(45, ios::beg);
+	
+	test.read(50, testBuffer);
+	check.read(checkBuffer, 50);
+	EXPECT_STREQ(testBuffer, checkBuffer) << "Not the same string!";
+
+	test.seekGet(100, file::Dir::CUR);
+	EXPECT_EQ(test.tellGet(), 100 + 45 + 50) << "Seek pointer not set correctly";
+	check.seekg(100, ios::cur);
+
+	test.read(60, testBuffer);
+	check.read(checkBuffer, 60);
+	EXPECT_STREQ(testBuffer, checkBuffer) << "Not the same string!";
+
+	test.seekGet(-75, file::Dir::END);
+	EXPECT_EQ(test.tellGet(), 500 - 75) << "Seek pointer not set correctly";
+	check.seekg(-75, ios::end);
+
+	test.read(75, testBuffer);
+	check.read(checkBuffer, 75);
+	EXPECT_STREQ(testBuffer, checkBuffer) << "Not the same string!";
+
+	test.close_file();
+	check.close();
+	remove((string(file_prefix) + fileName).c_str());
+}
+
+TEST(LocalFileTests, TellAndSeekPutTest)
+{
+	string fileName = "SeekPutTest.txt";
+	char checkBuffer[501] = "";
+	
+	file test(fileName, file::Mode::WRITE_ONLY);
+	test.close_file();
+
+	test.open_file(fileName, file::Mode::READ_WRITE);
+	fstream check(string(file_prefix) + fileName, ios::in);
+	EXPECT_TRUE(check.is_open()) << "File not opened/created!";
+
+	test.seekPut(45, file::Dir::BEG);
+	EXPECT_EQ(test.tellPut(), 45) << "Put pointer not set correctly";
+	check.seekg(45, ios::beg);
+	
+	test.write(50, _100bytes.c_str());
+	check.read(checkBuffer, 50);
+	EXPECT_STREQ(checkBuffer, (_100bytes.substr(0, 50).c_str())) << "Not the same string!";
+
+	test.seekPut(100, file::Dir::CUR);
+	EXPECT_EQ(test.tellPut(), 100 + 45 + 50) << "Put pointer not set correctly";
+	check.seekg(100, ios::cur);
+
+	test.write(60, _100bytes.c_str());
+	check.read(checkBuffer, 60);
+	EXPECT_STREQ(checkBuffer, (_100bytes.substr(0, 60).c_str())) << "Not the same string!";
+
+	test.seekPut(-75, file::Dir::END);
+	EXPECT_EQ(test.tellPut(), 500 - 75) << "Put pointer not set correctly";
+	check.seekg(-75, ios::end);
+
+	test.write(75, _500bytes.c_str());
+	check.read(checkBuffer, 75);
+	EXPECT_STREQ(checkBuffer, (_500bytes.substr(0, 75).c_str())) << "Not the same string!";
+}
