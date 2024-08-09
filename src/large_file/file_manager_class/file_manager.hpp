@@ -5,28 +5,28 @@
 #include <vector>
 #include "local_file.hpp"
 
-namespace large_file
+namespace LargeFile
 {
-    namespace file_manager
+    namespace FileManager
     {
         using namespace std;
-        using namespace small_file::local_file;
-        class file_manager
+        using namespace SmallFile::LocalFile;
+        class FileManager
         {
             private:
-            vector<file*> files_record;
-            int num_of_files_open = 0;
-            file::Mode file_mode;
+            vector<File*> filesRecord;
+            int numOfFilesOpen = 0;
+            File::Mode fileMode;
 
             public:
-            void create_files(int);
-            void open_files(int);
-            file_manager(file::Mode);
-            file_manager(int, file::Mode);
-            ~file_manager();
+            void createFiles(int);
+            void openFiles(int);
+            FileManager(File::Mode);
+            FileManager(int, File::Mode);
+            ~FileManager();
             void write(string&, int, int&);
             void read(char*, int, int&);
-            void close_all_files();
+            void closeAllFiles();
         };
     }
 }

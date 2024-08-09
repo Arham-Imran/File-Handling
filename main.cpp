@@ -6,8 +6,8 @@
 #include <vector>
 #include "file_manager.hpp"
 using namespace std;
-using namespace small_file::local_file;
-using namespace large_file::file_manager;
+using namespace SmallFile::LocalFile;
+using namespace LargeFile::FileManager;
 
 void parse_input(int& pos, string& line)
 {
@@ -20,7 +20,7 @@ int main()
 {
     int pos = -1;
     string line = "";
-    file_manager new_filesystem(file::Mode::WRITE_ONLY);
+    FileManager new_filesystem(File::Mode::WRITE_ONLY);
     
     while(true)
     {

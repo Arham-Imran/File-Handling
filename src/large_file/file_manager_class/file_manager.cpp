@@ -1,68 +1,67 @@
 #include <cstring>
 #include "file_manager.hpp"
 
-namespace large_file
+namespace LargeFile
 {
-    namespace file_manager
+    namespace FileManager
     {
         
-        file_manager::file_manager(file::Mode open_mode)
+        FileManager::FileManager(File::Mode openMode)
         {
-            file_mode = open_mode;
-            // create_files(4);
+            fileMode = openMode;
         }
 
-        file_manager::file_manager(int specified_size, file::Mode open_mode)
+        FileManager::FileManager(int specified_size, File::Mode openMode)
         {
-            file_mode = open_mode;
-            int files_needed = (specified_size / file::max_size) + 1;
-            create_files(files_needed);
-            num_of_files_open = files_needed;
+            fileMode = openMode;
+            int fileNeeded = (specified_size / File::maxSize) + 1;
+            createFiles(fileNeeded);
+            numOfFilesOpen = fileNeeded;
         }
 
-        file_manager::~file_manager()
+        FileManager::~FileManager()
         {
-            close_all_files();
+            closeAllFiles();
         }
 
-        void file_manager::open_files(int numOfFiles)
+        void FileManager::openFiles(int numOfFiles)
         {
-            create_files(numOfFiles);
+            createFiles(numOfFiles);
         }
 
-        void file_manager::create_files(int num_of_files)
+        void FileManager::createFiles(int num_of_files)
         {
-            file* new_file = NULL;
-            for(int i = num_of_files_open; i < (num_of_files_open + num_of_files); i++)
+            File* new_file = NULL;
+            for(int i = numOfFilesOpen; i < (numOfFilesOpen + num_of_files); i++)
             {
-                new_file = new file("test" + to_string(i) + ".txt", file_mode);
-                files_record.push_back(new_file);
-                // num_of_files_open++;
+                new_file = new File("test" + to_string(i) + ".txt", fileMode);
+                filesRecord.push_back(new_file);
+                // numOfFilesOpen++;
             }
-            num_of_files_open += num_of_files;
+            numOfFilesOpen += num_of_files;
         }
 
-        void file_manager::write(string& line, int count, int& pos)
+        void FileManager::write(string& line, int count, int& pos)
         {
             if(pos < 0)
             {
                 return;
             }
 
-            int files_to_create = ((pos + count)/ file::max_size) + 1;
-            create_files(files_to_create - num_of_files_open);
+            int files_to_create = ((pos + count)/ File::maxSize) + 1;
+            createFiles(files_to_create - numOfFilesOpen);
 
             int characters_written = 0;
-            int fileIndex = pos / file::max_size;
-            if(fileIndex >= num_of_files_open)
+            int fileIndex = pos / File::maxSize;
+            if(fileIndex >= numOfFilesOpen)
             {
                 return;
             }
             
-            for (int i = fileIndex; i < num_of_files_open; i++)   //checks and writes into existing files
+            for (int i = fileIndex; i < numOfFilesOpen; i++)   //checks and writes into existing files
             {
-                files_record[i]->seekPut(pos % file::max_size, file::Dir::BEG);
-                characters_written = files_record[i]->file::write(count, line.c_str());
+                filesRecord[i]->seekPut(pos % File::maxSize, File::Dir::BEG);
+                characters_written = filesRecord[i]->File::write(count, line.c_str());
                 if (characters_written > 0 && characters_written < count)
                 {
                     line.erase(line.begin(), line.begin() + characters_written);
@@ -77,7 +76,7 @@ namespace large_file
             }
         }
 
-        void file_manager::read(char* readBuffer, int count, int& pos)
+        void FileManager::read(char* readBuffer, int count, int& pos)
         {
             if(count <= 0 || pos < 0)
             {
@@ -85,17 +84,17 @@ namespace large_file
             }
             
             int charactersRead = 0;
-            int fileIndex = pos / file::max_size;
-            char storeBuffer[file::max_size + 1] = "";
-            if(fileIndex >= num_of_files_open)
+            int fileIndex = pos / File::maxSize;
+            char storeBuffer[File::maxSize + 1] = "";
+            if(fileIndex >= numOfFilesOpen)
             {
                 return;
             }
 
-            for(int i = fileIndex; i < num_of_files_open; i++)
+            for(int i = fileIndex; i < numOfFilesOpen; i++)
             {
-                files_record[i]->seekGet(pos % file::max_size, file::Dir::BEG);
-                charactersRead = files_record[i]->read(count, storeBuffer);
+                filesRecord[i]->seekGet(pos % File::maxSize, File::Dir::BEG);
+                charactersRead = filesRecord[i]->read(count, storeBuffer);
                 if(charactersRead >= 0 && charactersRead < count)
                 {
                     strncat(readBuffer, storeBuffer, charactersRead);
@@ -110,11 +109,11 @@ namespace large_file
             }
         }
 
-        void file_manager::close_all_files()
+        void FileManager::closeAllFiles()
         {
-            for (int i = 0; i < num_of_files_open; i++)
-                delete files_record[i];
-            num_of_files_open = 0;
+            for (int i = 0; i < numOfFilesOpen; i++)
+                delete filesRecord[i];
+            numOfFilesOpen = 0;
         }
     }
 }

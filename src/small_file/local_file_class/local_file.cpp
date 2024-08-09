@@ -2,86 +2,66 @@
 #include <cstring>
 #include "local_file.hpp"
 
-namespace small_file
+namespace SmallFile
 {
-    namespace local_file
+    namespace LocalFile
     {
         using namespace std;    
 
-        const int file::max_size = 500; 
+        const int File::maxSize = 500; 
         
-        file::file(){}
+        File::File(){}
 
-        // file::file(int num, Mode open_mode)
-        // {
-        //     file_name.append("test" + to_string(num) + ".txt");
-            
-        //     file_mode = open_mode;
-        //     file_size = check_file_size();
-        //     open_file();
-
-        //     fill_file_random();
-        //     file_obj.seekp(0, ios::beg);
-        // }
-
-        file::file(string name, Mode open_mode)
+        File::File(string name, Mode open_mode)
         {
-            open_file(name, open_mode);
-            file_size = check_file_size();
+            openFile(name, open_mode);
+            fileSize = checkFileSize();
 
-            fill_file_random();
-            file_obj.seekp(0, ios::beg);
+            fillFileRandom();
+            fileObj.seekp(0, ios::beg);
         }
 
-        file::~file()
+        File::~File()
         {
-            close_file();
+            closeFile();
         }
 
-        void file::open_file(string name, Mode open_mode)
+        void File::openFile(string name, Mode open_mode)
         {
-            if (!file_obj.is_open())
+            if (!fileObj.is_open())
             {
-                file_name = name;
-                file_mode = open_mode;
-                switch (file_mode)
+                fileName = name;
+                fileMode = open_mode;
+                switch (fileMode)
                 {
                 case Mode::APPEND:
-                    file_obj.open(file_prefix + file_name, ios::app);
+                    fileObj.open(filePrefix + fileName, ios::app);
                     break;
 
                 case Mode::BINARY:
-                    file_obj.open(file_prefix + file_name, ios::binary | ios::in | ios::out);
-                    if (!file_obj.is_open())
-                        file_obj.open(file_prefix + file_name, ios::binary | ios::out);
+                    fileObj.open(filePrefix + fileName, ios::binary | ios::in | ios::out);
+                    if (!fileObj.is_open())
+                        fileObj.open(filePrefix + fileName, ios::binary | ios::out);
                     break;
 
                 case Mode::READ_ONLY:
-                    file_obj.open(file_prefix + file_name, ios::in);
+                    fileObj.open(filePrefix + fileName, ios::in);
                     break;
 
                 case Mode::WRITE_ONLY:
-                    file_obj.open(file_prefix + file_name, ios::out);
+                    fileObj.open(filePrefix + fileName, ios::out);
                     break;
 
                 case Mode::READ_WRITE:
-                    file_obj.open(file_prefix + file_name, ios::in | ios::out);
-                    // if (!file_obj.is_open())
-                    // {
-                    //     file_obj.open(file_name, ios::out);
-                    //     file_obj.close();
-                    //     file_obj.open(file_name, ios::in | ios::out);
-                    // }
+                    fileObj.open(filePrefix + fileName, ios::in | ios::out);
                     break;
 
                 case Mode::TRUNCATE:
-                    file_obj.open(file_prefix + file_name, ios::out | ios::trunc);
+                    fileObj.open(filePrefix + fileName, ios::out | ios::trunc);
                     break;
 
                 case Mode::APPEND_AT_END:
-                    file_obj.open(file_prefix + file_name, ios::ate | ios::in | ios::out);
-                    // if (!file_obj.is_open())
-                    //     file_obj.open(file_name, ios::ate | ios::out);
+                    fileObj.open(filePrefix + fileName, ios::ate | ios::in | ios::out);
                     break;
 
                 default:
@@ -90,92 +70,92 @@ namespace small_file
             }
         }
 
-        void file::fill_file_random()
+        void File::fillFileRandom()
         {
-            if(file_mode == Mode::READ_WRITE || file_mode == Mode::WRITE_ONLY)
+            if(fileMode == Mode::READ_WRITE || fileMode == Mode::WRITE_ONLY)
             {
                 char random = 'A';
-                while (file_size < file::max_size)
+                while (fileSize < File::maxSize)
                 {
-                    file_obj.seekp(0, ios::end);
-                    file_obj << random;
-                    file_obj.flush();
+                    fileObj.seekp(0, ios::end);
+                    fileObj << random;
+                    fileObj.flush();
 
                     random++;
-                    file_size++;
+                    fileSize++;
 
                     if (random == 'z')
                         random = 'A';
 
-                    if (file_size % 100 == 0 && file_size < file::max_size)
+                    if (fileSize % 100 == 0 && fileSize < File::maxSize)
                     {
-                        file_obj << endl;
-                        file_size++;
+                        fileObj << endl;
+                        fileSize++;
                     }
                 }
             }
         }
 
-        bool file::file_is_open()
+        bool File::fileIsOpen()
         {
-            return file_obj.is_open();
+            return fileObj.is_open();
         }
 
-        void file::close_file()
+        void File::closeFile()
         {
-            if (file_obj.is_open())
-                file_obj.close();
+            if (fileObj.is_open())
+                fileObj.close();
             else
                 return;
         }
 
-        streamsize file::check_file_size()
+        streamsize File::checkFileSize()
         {
-            if(file_obj.is_open())
-                file_obj.close();   
+            if(fileObj.is_open())
+                fileObj.close();   
             
-            file_obj.open(file_prefix + file_name, ios::out | ios::in | ios::binary);
-            if (!file_obj.is_open())
+            fileObj.open(filePrefix + fileName, ios::out | ios::in | ios::binary);
+            if (!fileObj.is_open())
             {
-                open_file(file_name, file_mode);
+                openFile(fileName, fileMode);
                 return 0;
             }
 
-            file_obj.ignore(std::numeric_limits<std::streamsize>::max());
-            streamsize length = file_obj.gcount();
-            file_obj.clear();
-            file_obj.seekg(0, ios::beg);
+            fileObj.ignore(std::numeric_limits<std::streamsize>::max());
+            streamsize length = fileObj.gcount();
+            fileObj.clear();
+            fileObj.seekg(0, ios::beg);
 
-            file_obj.close();
-            open_file(file_name, file_mode);
+            fileObj.close();
+            openFile(fileName, fileMode);
             return length;
         }
 
-        int file::write(int count, const char* new_data)
+        int File::write(int count, const char* new_data)
         {
             char write_buffer[501] = "";
-            if (tellPut() >= max_size)
+            if (tellPut() >= maxSize)
             {
                 return 0;
             }
-            else if (tellPut() + count > max_size)
+            else if (tellPut() + count > maxSize)
             {
-                strncpy(write_buffer, new_data, max_size - tellPut());
+                strncpy(write_buffer, new_data, maxSize - tellPut());
                 
-                file_obj << write_buffer;
-                file_obj.flush();
+                fileObj << write_buffer;
+                fileObj.flush();
 
-                file_size += strlen(write_buffer); 
+                fileSize += strlen(write_buffer); 
                 return strlen(write_buffer);
             }
-            else if (tellPut() + count <= max_size)
+            else if (tellPut() + count <= maxSize)
             {
                 strncpy(write_buffer, new_data, count);
 
-                file_obj.write(write_buffer, count);
-                file_obj.flush();
+                fileObj.write(write_buffer, count);
+                fileObj.flush();
 
-                file_size += strlen(write_buffer);
+                fileSize += strlen(write_buffer);
                 return strlen(write_buffer);
             }
             else
@@ -184,21 +164,21 @@ namespace small_file
             }
         }
 
-        int file::read(int count, char* readBuffer)
+        int File::read(int count, char* readBuffer)
         {
             int currentPos = tellPut();
-            if(currentPos >= file::max_size)
+            if(currentPos >= File::maxSize)
             {
                 return 0;
             }
-            else if((count + currentPos) > file::max_size)
+            else if((count + currentPos) > File::maxSize)
             {
-                file_obj.read(readBuffer, file::max_size - currentPos);
-                return (file::max_size - currentPos);
+                fileObj.read(readBuffer, File::maxSize - currentPos);
+                return (File::maxSize - currentPos);
             }
-            else if((count + currentPos) <= file::max_size)
+            else if((count + currentPos) <= File::maxSize)
             {
-                file_obj.read(readBuffer, count);
+                fileObj.read(readBuffer, count);
                 return count;
             }
             else
@@ -207,12 +187,12 @@ namespace small_file
             }
         }
 
-        int file::tellGet()
+        int File::tellGet()
         {
-            return file_obj.tellp();
+            return fileObj.tellp();
         }
 
-        void file::seekGet(int pos, Dir dir)
+        void File::seekGet(int pos, Dir dir)
         {
             switch(dir)
             {
@@ -221,11 +201,11 @@ namespace small_file
                 {
                     return;
                 }
-                file_obj.seekg(pos, ios::beg);
+                fileObj.seekg(pos, ios::beg);
                 break;
 
                 case Dir::CUR:
-                file_obj.seekg(pos, ios::cur);
+                fileObj.seekg(pos, ios::cur);
                 break;
 
                 case Dir::END:
@@ -233,7 +213,7 @@ namespace small_file
                 {
                     return;
                 }
-                file_obj.seekg(pos, ios::end);
+                fileObj.seekg(pos, ios::end);
                 break;
 
                 default:
@@ -242,12 +222,12 @@ namespace small_file
             }
         }
 
-        int file::tellPut()
+        int File::tellPut()
         {
-            return file_obj.tellp();
+            return fileObj.tellp();
         }
 
-        void file::seekPut(int pos, Dir dir)
+        void File::seekPut(int pos, Dir dir)
         {
             switch(dir)
             {
@@ -256,11 +236,11 @@ namespace small_file
                 {
                     return;
                 }
-                file_obj.seekp(pos, ios::beg);
+                fileObj.seekp(pos, ios::beg);
                 break;
 
                 case Dir::CUR:
-                file_obj.seekp(pos, ios::cur);
+                fileObj.seekp(pos, ios::cur);
                 break;
 
                 case Dir::END:
@@ -268,7 +248,7 @@ namespace small_file
                 {
                     return;
                 }
-                file_obj.seekp(pos, ios::end);
+                fileObj.seekp(pos, ios::end);
                 break;
 
                 default:

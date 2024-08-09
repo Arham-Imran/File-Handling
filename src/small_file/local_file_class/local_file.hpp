@@ -5,12 +5,12 @@
 #include <fstream>
 #include <string>
 
-namespace small_file
+namespace SmallFile
 {
-    namespace local_file
+    namespace LocalFile
     {
         using namespace std;
-        class file
+        class File
         {
             public:
             enum class Mode
@@ -23,23 +23,22 @@ namespace small_file
             };
 
             private:
-            string file_prefix = "../test_files/";
-            string file_name;
-            fstream file_obj;
-            streamsize file_size = 0;
-            Mode file_mode;
+            string filePrefix = "../test_files/";
+            string fileName;
+            fstream fileObj;
+            streamsize fileSize = 0;
+            Mode fileMode;
 
             public:
-            static const int max_size;
-            file();
-            //file(int, Mode);
-            file(string, Mode);
-            ~file();
-            void open_file(string, Mode);
-            void fill_file_random();
-            bool file_is_open();
-            void close_file();
-            streamsize check_file_size();
+            static const int maxSize;
+            File();
+            File(string, Mode);
+            ~File();
+            void openFile(string, Mode);
+            void fillFileRandom();
+            bool fileIsOpen();
+            void closeFile();
+            streamsize checkFileSize();
             int write(int, const char*);
             int read(int, char*);
             int tellGet();
@@ -51,5 +50,5 @@ namespace small_file
 }
 
 #else 
-extern const int max_size;
+extern const int maxSize;
 #endif //_LOCAL_FILE_HPP_
