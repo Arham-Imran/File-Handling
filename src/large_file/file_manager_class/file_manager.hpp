@@ -20,6 +20,7 @@ namespace large_file
 
             public:
             void create_files(int);
+            void open_files(int);
             file_manager(file::Mode);
             file_manager(int, file::Mode);
             ~file_manager();

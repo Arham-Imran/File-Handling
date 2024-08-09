@@ -1,3 +1,4 @@
+#include <cstring>
 #include "file_manager.hpp"
 
 namespace large_file
@@ -22,6 +23,11 @@ namespace large_file
         file_manager::~file_manager()
         {
             close_all_files();
+        }
+
+        void file_manager::open_files(int numOfFiles)
+        {
+            create_files(numOfFiles);
         }
 
         void file_manager::create_files(int num_of_files)
@@ -80,6 +86,7 @@ namespace large_file
             
             int charactersRead = 0;
             int fileIndex = pos / file::max_size;
+            char storeBuffer[file::max_size + 1] = "";
             if(fileIndex >= num_of_files_open)
             {
                 return;
@@ -88,14 +95,16 @@ namespace large_file
             for(int i = fileIndex; i < num_of_files_open; i++)
             {
                 files_record[i]->seekGet(pos % file::max_size, file::Dir::BEG);
-                charactersRead = files_record[i]->read(count, readBuffer);
+                charactersRead = files_record[i]->read(count, storeBuffer);
                 if(charactersRead >= 0 && charactersRead < count)
                 {
+                    strncat(readBuffer, storeBuffer, charactersRead);
                     pos = 0;
                     count -= charactersRead;
                 }
                 else if(charactersRead == count)
                 {
+                    strncat(readBuffer, storeBuffer, charactersRead);
                     return;
                 }
             }
