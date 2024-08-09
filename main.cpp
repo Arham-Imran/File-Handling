@@ -20,7 +20,7 @@ int main()
 {
     int pos = -1;
     string line = "";
-    file_manager new_filesystem(3000, file::Mode::WRITE_ONLY);
+    file_manager new_filesystem(file::Mode::WRITE_ONLY);
     
     while(true)
     {
