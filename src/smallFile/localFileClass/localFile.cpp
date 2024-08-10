@@ -12,9 +12,9 @@ namespace SmallFile
         
         File::File(){}
 
-        File::File(string name, Mode open_mode)
+        File::File(string name, Mode openMode)
         {
-            openFile(name, open_mode);
+            openFile(name, openMode);
             fileSize = checkFileSize();
 
             fillFileRandom();
@@ -26,12 +26,12 @@ namespace SmallFile
             closeFile();
         }
 
-        void File::openFile(string name, Mode open_mode)
+        void File::openFile(string name, Mode openMode)
         {
             if (!fileObj.is_open())
             {
                 fileName = name;
-                fileMode = open_mode;
+                fileMode = openMode;
                 switch (fileMode)
                 {
                 case Mode::APPEND:
@@ -131,32 +131,32 @@ namespace SmallFile
             return length;
         }
 
-        int File::write(int count, const char* new_data)
+        int File::write(int count, const char* newData)
         {
-            char write_buffer[501] = "";
+            char writeBuffer[maxSize + 1] = "";
             if (tellPut() >= maxSize)
             {
                 return 0;
             }
             else if (tellPut() + count > maxSize)
             {
-                strncpy(write_buffer, new_data, maxSize - tellPut());
+                strncpy(writeBuffer, newData, maxSize - tellPut());
                 
-                fileObj << write_buffer;
+                fileObj << writeBuffer;
                 fileObj.flush();
 
-                fileSize += strlen(write_buffer); 
-                return strlen(write_buffer);
+                fileSize += strlen(writeBuffer); 
+                return strlen(writeBuffer);
             }
             else if (tellPut() + count <= maxSize)
             {
-                strncpy(write_buffer, new_data, count);
+                strncpy(writeBuffer, newData, count);
 
-                fileObj.write(write_buffer, count);
+                fileObj.write(writeBuffer, count);
                 fileObj.flush();
 
-                fileSize += strlen(write_buffer);
-                return strlen(write_buffer);
+                fileSize += strlen(writeBuffer);
+                return strlen(writeBuffer);
             }
             else
             {

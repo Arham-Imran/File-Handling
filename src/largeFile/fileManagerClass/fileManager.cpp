@@ -11,10 +11,10 @@ namespace LargeFile
             fileMode = openMode;
         }
 
-        FileManager::FileManager(int specified_size, File::Mode openMode)
+        FileManager::FileManager(int specifiedSize, File::Mode openMode)
         {
             fileMode = openMode;
-            int fileNeeded = (specified_size / File::maxSize) + 1;
+            int fileNeeded = (specifiedSize / File::maxSize) + 1;
             createFiles(fileNeeded);
             numOfFilesOpen = fileNeeded;
         }
@@ -29,16 +29,16 @@ namespace LargeFile
             createFiles(numOfFiles);
         }
 
-        void FileManager::createFiles(int num_of_files)
+        void FileManager::createFiles(int numOfFiles)
         {
-            File* new_file = NULL;
-            for(int i = numOfFilesOpen; i < (numOfFilesOpen + num_of_files); i++)
+            File* newFile = NULL;
+            for(int i = numOfFilesOpen; i < (numOfFilesOpen + numOfFiles); i++)
             {
-                new_file = new File("test" + to_string(i) + ".txt", fileMode);
-                filesRecord.push_back(new_file);
+                newFile = new File("test" + to_string(i) + ".txt", fileMode);
+                filesRecord.push_back(newFile);
                 // numOfFilesOpen++;
             }
-            numOfFilesOpen += num_of_files;
+            numOfFilesOpen += numOfFiles;
         }
 
         void FileManager::write(string& line, int count, int& pos)
@@ -48,10 +48,10 @@ namespace LargeFile
                 return;
             }
 
-            int files_to_create = ((pos + count)/ File::maxSize) + 1;
-            createFiles(files_to_create - numOfFilesOpen);
+            int filesToCreate = ((pos + count)/ File::maxSize) + 1;
+            createFiles(filesToCreate - numOfFilesOpen);
 
-            int characters_written = 0;
+            int charactersWritten = 0;
             int fileIndex = pos / File::maxSize;
             if(fileIndex >= numOfFilesOpen)
             {
@@ -61,15 +61,15 @@ namespace LargeFile
             for (int i = fileIndex; i < numOfFilesOpen; i++)   //checks and writes into existing files
             {
                 filesRecord[i]->seekPut(pos % File::maxSize, File::Dir::BEG);
-                characters_written = filesRecord[i]->File::write(count, line.c_str());
-                if (characters_written > 0 && characters_written < count)
+                charactersWritten = filesRecord[i]->File::write(count, line.c_str());
+                if (charactersWritten > 0 && charactersWritten < count)
                 {
-                    line.erase(line.begin(), line.begin() + characters_written);
+                    line.erase(line.begin(), line.begin() + charactersWritten);
                     pos = 0;
-                    characters_written = 0;
-                    count -= characters_written;
+                    charactersWritten = 0;
+                    count -= charactersWritten;
                 }
-                else if (characters_written == line.size())
+                else if (charactersWritten == line.size())
                 {
                     return;
                 }
